@@ -2,6 +2,53 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sun, Home } from 'lucide-react';
 
+const FloatingPaths = ({ position }) => {
+  const paths = Array.from({ length: 36 }, (_, i) => ({
+    id: i,
+    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
+      380 - i * 5 * position
+    } -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${
+      152 - i * 5 * position
+    } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
+      684 - i * 5 * position
+    } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
+    color: `rgba(34, 211, 238, ${0.05 + i * 0.01})`,
+    width: 0.5 + i * 0.03,
+  }));
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+      <svg
+        style={{ width: '100%', height: '100%' }}
+        viewBox="0 0 696 316"
+        fill="none"
+      >
+        <title>Background Paths</title>
+        {paths.map((path) => (
+          <motion.path
+            key={path.id}
+            d={path.d}
+            stroke="var(--accent-primary)"
+            strokeWidth={path.width}
+            strokeOpacity={0.1 + path.id * 0.02}
+            initial={{ pathLength: 0.3, opacity: 0.6 }}
+            animate={{
+              pathLength: 1,
+              opacity: [0.3, 0.6, 0.3],
+              pathOffset: [0, 1, 0],
+            }}
+            transition={{
+              duration: 20 + Math.random() * 10,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        ))}
+      </svg>
+    </div>
+  );
+};
+
 const AuthPages = ({ type, onSwitch, onFinish }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,6 +93,10 @@ const AuthPages = ({ type, onSwitch, onFinish }) => {
 
   return (
     <div style={styles.pageWrapper}>
+      <div style={styles.backgroundContainer}>
+        <FloatingPaths position={1} />
+        <FloatingPaths position={-1} />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -162,7 +213,14 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '2rem',
-    background: 'var(--gradient-bg)',
+    background: '#020617', // Deep Dark
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  backgroundContainer: {
+    position: 'absolute',
+    inset: 0,
+    zIndex: 0,
   },
   cardContainer: {
     width: '100%',

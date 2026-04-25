@@ -81,7 +81,7 @@ const styles = {
     zIndex: 10,
   },
   headline: {
-    fontSize: '3rem',
+    fontSize: '3.5rem',
     lineHeight: '1.2',
     marginBottom: '2rem',
     fontWeight: '700',

@@ -14,7 +14,7 @@ const Navbar = ({ onNavigate, currentView, isDashboard }) => {
           whileHover={{ scale: 1.2, color: '#22D3EE' }}
           style={styles.iconWrapper}
           onClick={() => {
-            if (window.location.pathname !== '/') onNavigate('landing');
+            onNavigate('landing');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         >
@@ -24,8 +24,16 @@ const Navbar = ({ onNavigate, currentView, isDashboard }) => {
           whileHover={{ scale: 1.2, color: '#22D3EE' }}
           style={styles.iconWrapper}
           onClick={() => {
-            const el = document.getElementById('problem');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            if (currentView !== 'landing') {
+              onNavigate('landing');
+              setTimeout(() => {
+                const el = document.getElementById('problem');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            } else {
+              const el = document.getElementById('problem');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
           }}
         >
           <Info size={22} />
@@ -34,8 +42,16 @@ const Navbar = ({ onNavigate, currentView, isDashboard }) => {
           whileHover={{ scale: 1.2, color: '#22D3EE' }}
           style={styles.iconWrapper}
           onClick={() => {
-            const el = document.getElementById('how-it-works');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            if (currentView !== 'landing') {
+              onNavigate('landing');
+              setTimeout(() => {
+                const el = document.getElementById('how-it-works');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            } else {
+              const el = document.getElementById('how-it-works');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
           }}
         >
           <Sparkles size={22} />
@@ -44,8 +60,16 @@ const Navbar = ({ onNavigate, currentView, isDashboard }) => {
           whileHover={{ scale: 1.2, color: '#22D3EE' }}
           style={styles.iconWrapper}
           onClick={() => {
-            const el = document.getElementById('tech-stack');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+            if (currentView !== 'landing') {
+              onNavigate('landing');
+              setTimeout(() => {
+                const el = document.getElementById('tech-stack');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }, 100);
+            } else {
+              const el = document.getElementById('tech-stack');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
           }}
         >
           <Cpu size={22} />
@@ -88,7 +112,7 @@ const styles = {
     fontSize: '1.4rem',
     fontWeight: '700',
     cursor: 'pointer',
-    letterSpacing: '0.2em',
+    letterSpacing: '0.05em',
     color: 'var(--accent-primary)',
   },
   centerIcons: {

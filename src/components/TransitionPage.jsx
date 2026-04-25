@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, MapPin } from 'lucide-react';
 import Dashboard from './Dashboard';
+import Navbar from './Navbar';
 
 const stateImages = [
   {
@@ -138,12 +139,19 @@ function ZoomParallax({ images }) {
 }
 
 // ── TransitionPage ───────────────────────────────────────────────────────────
-const TransitionPage = ({ onHome }) => {
+const TransitionPage = ({ onHome, onNavigate }) => {
   const [showScrollHint, setShowScrollHint] = useState(true);
+  const [showNavbar, setShowNavbar] = useState(false);
+  const dashboardRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollHint(window.scrollY < 300);
+      // Show navbar once user reaches the dashboard section
+      if (dashboardRef.current) {
+        const rect = dashboardRef.current.getBoundingClientRect();
+        setShowNavbar(rect.top <= 80);
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -225,8 +233,17 @@ const TransitionPage = ({ onHome }) => {
         </motion.div>
       </section>
 
+      {/* ── Navbar (appears after parallax) ─────────────────── */}
+      {showNavbar && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000 }}>
+          <Navbar onNavigate={onNavigate} currentView="dashboard" isDashboard={true} />
+        </div>
+      )}
+
       {/* ── Dashboard ──────────────────────────────────────────── */}
-      <Dashboard onHome={onHome} />
+      <div ref={dashboardRef}>
+        <Dashboard onHome={onHome} />
+      </div>
     </div>
   );
 };

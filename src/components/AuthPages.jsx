@@ -1,73 +1,249 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Sun } from 'lucide-react';
 
 const AuthPages = ({ type, onSwitch, onFinish }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isHoveringBtn, setIsHoveringBtn] = useState(false);
+
+  const validateEmail = (value) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
+  const validatePassword = (value) => {
+    return value.length >= 8;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    let valid = true;
+
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address.");
+      valid = false;
+    } else {
+      setEmailError("");
+    }
+
+    if (!validatePassword(password)) {
+      setPasswordError("Password must be at least 8 characters.");
+      valid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    if (valid) {
+      console.log("Form submitted successfully!");
+      // Proceed to the next step
+      onFinish();
+    }
+  };
+
+  const isSignIn = type === 'signin';
+
   return (
-    <div style={styles.container}>
+    <div style={styles.pageWrapper}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="card"
-        style={styles.authCard}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        style={styles.cardContainer}
       >
-        <h2 style={styles.title}>{type === 'signin' ? 'Welcome Back' : 'Join HaqDaar'}</h2>
-        <p style={styles.subtitle}>Enter your credentials to access the platform</p>
+        {/* Left Pane - Visuals */}
+        <div style={styles.leftPane}>
+          {/* Abstract Decorations matching the prompt's blur/gradient vibe */}
+          <div style={styles.bgDecoration1}></div>
+          <div style={styles.bgDecoration2}></div>
+          
+          <h1 style={styles.leftText}>
+            Access your welfare benefits seamlessly across India.
+          </h1>
+        </div>
 
-        <form style={styles.form} onSubmit={(e) => { e.preventDefault(); onFinish(); }}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Email Address</label>
-            <input type="email" placeholder="name@example.com" style={styles.input} required />
+        {/* Right Pane - Form */}
+        <div style={styles.rightPane}>
+          <div style={styles.headerArea}>
+            <div style={styles.iconWrapper}>
+              <Sun size={40} />
+            </div>
+            <h2 style={styles.header}>
+              {isSignIn ? "Welcome Back" : "Get Started"}
+            </h2>
+            <p style={styles.subheader}>
+              {isSignIn 
+                ? "Welcome back to HaqDaar — Sign in to continue" 
+                : "Welcome to HaqDaar — Let's get started"}
+            </p>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Password</label>
-            <input type="password" placeholder="••••••••" style={styles.input} required />
-          </div>
+          <form style={styles.form} onSubmit={handleSubmit} noValidate>
+            <div style={styles.inputGroup}>
+              <label htmlFor="email" style={styles.label}>Your email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="hi@example.com"
+                style={{
+                  ...styles.input,
+                  ...(emailError ? styles.inputError : {})
+                }}
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError("");
+                }}
+              />
+              {emailError && <p style={styles.errorText}>{emailError}</p>}
+            </div>
 
-          <button type="submit" className="gold-button" style={styles.submitBtn}>
-            {type === 'signin' ? 'Sign In' : 'Create Account'}
-          </button>
-        </form>
+            <div style={styles.inputGroup}>
+              <label htmlFor="password" style={styles.label}>
+                {isSignIn ? "Password" : "Create new password"}
+              </label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                style={{
+                  ...styles.input,
+                  ...(passwordError ? styles.inputError : {})
+                }}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (passwordError) setPasswordError("");
+                }}
+              />
+              {passwordError && <p style={styles.errorText}>{passwordError}</p>}
+            </div>
 
-        <div style={styles.footer}>
-          {type === 'signin' ? (
-            <p>Don't have an account? <span style={styles.link} onClick={() => onSwitch('signup')}>Sign Up</span></p>
-          ) : (
-            <p>Already have an account? <span style={styles.link} onClick={() => onSwitch('signin')}>Sign In</span></p>
-          )}
+            <button
+              type="submit"
+              style={{
+                ...styles.submitBtn,
+                backgroundColor: isHoveringBtn ? 'var(--accent-secondary)' : 'var(--accent-primary)'
+              }}
+              onMouseEnter={() => setIsHoveringBtn(true)}
+              onMouseLeave={() => setIsHoveringBtn(false)}
+            >
+              {isSignIn ? "Sign In" : "Create a new account"}
+            </button>
+
+            <div style={styles.footerText}>
+              {isSignIn ? "Don't have an account? " : "Already have an account? "}
+              <span 
+                style={styles.link} 
+                onClick={() => onSwitch(isSignIn ? 'signup' : 'signin')}
+              >
+                {isSignIn ? "Sign Up" : "Login"}
+              </span>
+            </div>
+          </form>
         </div>
       </motion.div>
     </div>
   );
 };
 
+// Responsive handling would typically be done via CSS media queries, 
+// but using flexWrap is a standard React inline-style approach for split screens.
 const styles = {
-  container: {
-    height: '100vh',
+  pageWrapper: {
+    minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#0B0B0B',
+    padding: '2rem',
+    background: 'var(--gradient-bg)',
   },
-  authCard: {
+  cardContainer: {
     width: '100%',
-    maxWidth: '450px',
-    padding: '3rem',
-    textAlign: 'center',
+    maxWidth: '1000px',
+    minHeight: '600px',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Allows stacking on small screens
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1)',
+    borderRadius: '24px',
+    overflow: 'hidden',
+    backgroundColor: '#111827',
   },
-  title: {
+  leftPane: {
+    flex: '1 1 400px',
+    background: '#0B0B0B',
+    color: '#fff',
+    padding: '4rem',
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'flex-end',
+    overflow: 'hidden',
+  },
+  leftText: {
     fontSize: '2.5rem',
-    marginBottom: '0.5rem',
+    fontWeight: '500',
+    lineHeight: '1.2',
+    letterSpacing: '-0.02em',
+    position: 'relative',
+    zIndex: 10,
   },
-  subtitle: {
-    color: '#A1A1AA',
+  bgDecoration1: {
+    width: '300px',
+    height: '300px',
+    background: 'var(--accent-primary)',
+    position: 'absolute',
+    bottom: '-100px',
+    left: '-100px',
+    borderRadius: '50%',
+    zIndex: 1,
+    filter: 'blur(80px)',
+    opacity: 0.4,
+  },
+  bgDecoration2: {
+    width: '400px',
+    height: '400px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    position: 'absolute',
+    top: '-150px',
+    right: '-150px',
+    borderRadius: '50%',
+    zIndex: 1,
+    filter: 'blur(60px)',
+  },
+  rightPane: {
+    flex: '1 1 400px',
+    padding: '4rem',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    background: '#111827',
+    zIndex: 10,
+  },
+  headerArea: {
     marginBottom: '2.5rem',
+  },
+  iconWrapper: {
+    color: 'var(--accent-primary)',
+    marginBottom: '1.5rem',
+  },
+  header: {
+    fontSize: '2rem',
+    fontWeight: '600',
+    marginBottom: '0.5rem',
+    color: 'var(--text-primary)',
+    letterSpacing: '-0.02em',
+  },
+  subheader: {
+    color: 'var(--text-secondary)',
+    fontSize: '1rem',
+    opacity: 0.8,
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem',
-    textAlign: 'left',
   },
   inputGroup: {
     display: 'flex',
@@ -76,31 +252,52 @@ const styles = {
   },
   label: {
     fontSize: '0.9rem',
-    color: '#40E0D0',
-    fontWeight: '600',
+    fontWeight: '500',
+    color: 'var(--text-primary)',
   },
   input: {
-    background: '#1a1a1a',
-    border: '1px solid rgba(64, 224, 208, 0.2)',
-    padding: '1rem',
-    borderRadius: '4px',
-    color: '#fff',
+    width: '100%',
+    padding: '0.75rem 1rem',
+    border: '1px solid #374151',
+    borderRadius: '8px',
+    fontSize: '0.95rem',
+    color: '#F3F4F6',
+    backgroundColor: '#1F2937',
     outline: 'none',
-    transition: 'all 0.3s ease',
+    transition: 'border-color 0.2s ease',
+  },
+  inputError: {
+    borderColor: '#EF4444',
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: '0.8rem',
+    marginTop: '0.25rem',
   },
   submitBtn: {
+    width: '100%',
+    color: '#fff',
+    padding: '0.8rem',
+    borderRadius: '8px',
+    fontWeight: '500',
+    fontSize: '1rem',
+    border: 'none',
+    cursor: 'pointer',
     marginTop: '1rem',
-    padding: '1rem',
+    transition: 'background-color 0.2s ease',
   },
-  footer: {
-    marginTop: '2rem',
-    color: '#A1A1AA',
+  footerText: {
+    textAlign: 'center',
+    marginTop: '1.5rem',
+    fontSize: '0.9rem',
+    color: '#4B5563',
   },
   link: {
-    color: '#40E0D0',
-    cursor: 'pointer',
+    color: 'var(--text-primary)',
     fontWeight: '600',
-  },
+    cursor: 'pointer',
+    textDecoration: 'underline',
+  }
 };
 
 export default AuthPages;

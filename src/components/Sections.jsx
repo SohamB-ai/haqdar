@@ -48,7 +48,7 @@ const TechStack = () => {
   ];
 
   return (
-    <section id="tech-stack" style={{ ...styles.section, background: '#080808' }}>
+    <section id="tech-stack" style={{ ...styles.section, background: 'var(--gradient-bg)' }}>
       <motion.h2
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -103,7 +103,7 @@ const styles = {
   stepNum: {
     fontSize: '3rem',
     fontWeight: '800',
-    color: 'rgba(64, 224, 208, 0.1)',
+    color: 'rgba(56, 189, 248, 0.1)',
     marginBottom: '-1.5rem',
     zIndex: 0,
   },
@@ -114,7 +114,7 @@ const styles = {
     fontWeight: '600',
   },
   stepDesc: {
-    color: '#A1A1AA',
+    color: 'var(--text-secondary)',
     fontSize: '0.9rem',
     maxWidth: '200px',
     lineHeight: '1.8',
@@ -125,7 +125,7 @@ const styles = {
     right: '-1.5rem',
     width: '3rem',
     height: '1px',
-    background: 'rgba(64, 224, 208, 0.2)',
+    background: 'rgba(56, 189, 248, 0.2)',
   },
   techGrid: {
     display: 'grid',
@@ -134,15 +134,15 @@ const styles = {
     marginTop: '2rem',
   },
   techCard: {
-    background: '#111',
+    background: 'var(--glass-bg)',
     padding: '2rem',
     borderRadius: '12px',
-    border: '1px solid rgba(64, 224, 208, 0.1)',
+    border: '1px solid rgba(56, 189, 248, 0.1)',
   },
   techCategory: {
     fontSize: '1.2rem',
     marginBottom: '1.5rem',
-    color: '#40E0D0',
+    color: '#22C55E',
   },
   tags: {
     display: 'flex',
@@ -151,11 +151,11 @@ const styles = {
     justifyContent: 'center',
   },
   tag: {
-    background: 'rgba(255, 255, 255, 0.05)',
+    background: 'rgba(56, 189, 248, 0.05)',
     padding: '0.4rem 1rem',
     borderRadius: '20px',
     fontSize: '0.9rem',
-    color: '#eee',
+    color: 'var(--text-primary)',
   },
 };
 

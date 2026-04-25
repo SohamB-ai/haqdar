@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import IndiaMap from './IndiaMap';
+import CanvasCursor from './CanvasCursor';
 
 const Hero = ({ onGetStarted }) => {
   return (
@@ -13,10 +14,10 @@ const Hero = ({ onGetStarted }) => {
           style={styles.headline}
         >
           Access Your Welfare <br />
-          <span style={{ 
-            background: 'var(--gradient-text)', 
-            WebkitBackgroundClip: 'text', 
-            WebkitTextFillColor: 'transparent' 
+          <span style={{
+            background: 'var(--gradient-text)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
           }}>Benefits Anywhere</span> in India
         </motion.h1>
 
@@ -51,6 +52,7 @@ const Hero = ({ onGetStarted }) => {
           <IndiaMap />
         </motion.div>
       </div>
+      <CanvasCursor />
     </section>
   );
 };
@@ -78,7 +80,7 @@ const styles = {
   },
   subtext: {
     fontSize: '1rem',
-    color: '#A1A1AA',
+    color: 'var(--text-secondary)',
     marginBottom: '3rem',
     maxWidth: '450px',
     lineHeight: '1.8',

@@ -10,9 +10,9 @@ const Navbar = ({ onNavigate }) => {
       </div>
 
       <div style={styles.centerIcons}>
-        <motion.div 
-          whileHover={{ scale: 1.2, color: '#A855F7' }} 
-          style={styles.iconWrapper} 
+        <motion.div
+          whileHover={{ scale: 1.2, color: '#22C55E' }}
+          style={styles.iconWrapper}
           onClick={() => {
             if (window.location.pathname !== '/') onNavigate('landing');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -20,9 +20,9 @@ const Navbar = ({ onNavigate }) => {
         >
           <Home size={22} />
         </motion.div>
-        <motion.div 
-          whileHover={{ scale: 1.2, color: '#A855F7' }} 
-          style={styles.iconWrapper} 
+        <motion.div
+          whileHover={{ scale: 1.2, color: '#22C55E' }}
+          style={styles.iconWrapper}
           onClick={() => {
             const el = document.getElementById('problem');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -30,9 +30,9 @@ const Navbar = ({ onNavigate }) => {
         >
           <Info size={22} />
         </motion.div>
-        <motion.div 
-          whileHover={{ scale: 1.2, color: '#A855F7' }} 
-          style={styles.iconWrapper} 
+        <motion.div
+          whileHover={{ scale: 1.2, color: '#22C55E' }}
+          style={styles.iconWrapper}
           onClick={() => {
             const el = document.getElementById('how-it-works');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -40,9 +40,9 @@ const Navbar = ({ onNavigate }) => {
         >
           <Sparkles size={22} />
         </motion.div>
-        <motion.div 
-          whileHover={{ scale: 1.2, color: '#A855F7' }} 
-          style={styles.iconWrapper} 
+        <motion.div
+          whileHover={{ scale: 1.2, color: '#22C55E' }}
+          style={styles.iconWrapper}
           onClick={() => {
             const el = document.getElementById('tech-stack');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -66,21 +66,20 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '1.5rem 4rem',
-    background: 'rgba(11, 11, 11, 0.8)',
+    background: 'rgba(255, 255, 255, 0.05)',
     backdropFilter: 'blur(10px)',
     position: 'fixed',
     top: 0,
     width: '100%',
     zIndex: 1000,
-    borderBottom: '1px solid rgba(168, 85, 247, 0.1)',
+    borderBottom: '1px solid rgba(56, 189, 248, 0.1)',
   },
   logo: {
     fontSize: '1.4rem',
     fontWeight: '700',
     cursor: 'pointer',
     letterSpacing: '0.2em',
-    textTransform: 'uppercase',
-    color: '#A855F7',
+    color: 'var(--accent-primary)',
   },
   centerIcons: {
     display: 'flex',
@@ -98,7 +97,7 @@ const styles = {
   },
   signIn: {
     background: 'transparent',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     fontSize: '1rem',
     fontWeight: '500',
   },

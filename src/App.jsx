@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Lenis from 'lenis';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ProblemSolution from './components/ProblemSolution';
@@ -6,9 +7,35 @@ import { HowItWorks, TechStack } from './components/Sections';
 import AuthPages from './components/AuthPages';
 import InputPanel from './components/InputPanel';
 import Dashboard from './components/Dashboard';
+import ScrollCheckpoints from './components/ScrollCheckpoints';
 
 function App() {
   const [view, setView] = useState('landing');
+
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
 
   const handleNavigate = (newView) => {
     setView(newView);
@@ -22,6 +49,7 @@ function App() {
         return (
           <>
             <Hero onGetStarted={() => setView('signup')} />
+            <ScrollCheckpoints />
             <ProblemSolution />
             <HowItWorks />
             <TechStack />
@@ -63,8 +91,8 @@ const styles = {
   footer: {
     padding: '4rem',
     textAlign: 'center',
-    borderTop: '1px solid rgba(64, 224, 208, 0.1)',
-    color: '#A1A1AA',
+    borderTop: '1px solid rgba(56, 189, 248, 0.2)',
+    color: 'var(--text-secondary)',
   },
   dashboard: {
     height: '100vh',

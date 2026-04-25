@@ -15,7 +15,7 @@ const IndiaMap = () => {
   return (
     <div style={styles.container}>
       <svg
-        viewBox="0 0 600 650"
+        viewBox="0 0 612 696"
         style={styles.svg}
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -23,15 +23,15 @@ const IndiaMap = () => {
           <motion.path
             key={state.id}
             d={state.d}
-            fill={index === activeStateIndex ? '#40E0D0' : '#1a1a1a'}
-            stroke="#40E0D0"
+            fill={index === activeStateIndex ? '#22C55E' : '#F3F4F6'}
+            stroke="#22C55E"
             strokeWidth="0.5"
             initial={{ opacity: 0.3 }}
             animate={{
               opacity: index === activeStateIndex ? 1 : 0.4,
-              fill: index === activeStateIndex ? '#40E0D0' : '#1a1a1a',
+              fill: index === activeStateIndex ? '#22C55E' : '#F3F4F6',
               scale: index === activeStateIndex ? 1.02 : 1,
-              filter: index === activeStateIndex ? 'drop-shadow(0 0 8px rgba(64, 224, 208, 0.8))' : 'none',
+              filter: index === activeStateIndex ? 'drop-shadow(0 0 8px rgba(56, 189, 248, 0.8))' : 'none',
             }}
             transition={{ duration: 0.8 }}
             style={{ cursor: 'pointer' }}
@@ -76,7 +76,7 @@ const styles = {
   },
   stateLabel: {
     fontSize: '1.2rem',
-    color: '#40E0D0',
+    color: '#22C55E',
     fontWeight: '600',
     letterSpacing: '0.1em',
     textTransform: 'uppercase',

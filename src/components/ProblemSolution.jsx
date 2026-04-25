@@ -61,7 +61,7 @@ const ProblemSolution = () => {
       </section>
 
       {/* Solution Section */}
-      <section style={styles.section}>
+      <section id="solution" style={styles.section}>
         <div style={{ width: '100%' }}>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -115,7 +115,7 @@ const styles = {
   },
   list: {
     fontSize: '1.1rem',
-    color: '#A1A1AA',
+    color: 'var(--text-secondary)',
     listStyleType: 'none',
     display: 'flex',
     flexDirection: 'column',
@@ -131,8 +131,8 @@ const styles = {
     width: '300px',
     height: '300px',
     borderRadius: '50%',
-    border: '2px solid #40E0D0',
-    boxShadow: '0 0 50px rgba(64, 224, 208, 0.2)',
+    border: '2px solid #22C55E',
+    boxShadow: '0 0 50px rgba(56, 189, 248, 0.2)',
   },
   grid: {
     display: 'grid',
@@ -146,11 +146,11 @@ const styles = {
     alignItems: 'center',
   },
   iconBox: {
-    color: '#40E0D0',
+    color: '#22C55E',
     marginBottom: '1.5rem',
     padding: '1rem',
     borderRadius: '12px',
-    background: 'rgba(64, 224, 208, 0.05)',
+    background: 'rgba(56, 189, 248, 0.05)',
   },
   cardTitle: {
     fontSize: '1.2rem',
@@ -159,7 +159,7 @@ const styles = {
     letterSpacing: '0.1em',
   },
   cardDesc: {
-    color: '#A1A1AA',
+    color: 'var(--text-secondary)',
     lineHeight: '1.8',
     fontSize: '0.9rem',
   },

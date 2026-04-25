@@ -58,8 +58,8 @@ const InputPanel = ({ onComplete }) => {
                 onClick={() => setFormData({ ...formData, occupation: occ.name })}
                 style={{
                   ...styles.iconCard,
-                  borderColor: formData.occupation === occ.name ? '#40E0D0' : 'rgba(255,255,255,0.1)',
-                  background: formData.occupation === occ.name ? 'rgba(64, 224, 208, 0.1)' : '#1a1a1a',
+                  borderColor: formData.occupation === occ.name ? '#22C55E' : 'rgba(56, 189, 248, 0.1)',
+                  background: formData.occupation === occ.name ? 'rgba(56, 189, 248, 0.1)' : 'var(--bg-primary)',
                 }}
               >
                 <div style={styles.iconBox}>{occ.icon}</div>
@@ -78,8 +78,8 @@ const InputPanel = ({ onComplete }) => {
                 onClick={() => setFormData({ ...formData, income: r })}
                 style={{
                   ...styles.optionBtn,
-                  background: formData.income === r ? '#40E0D0' : '#1a1a1a',
-                  color: formData.income === r ? '#000' : '#fff',
+                   background: formData.income === r ? '#22C55E' : 'rgba(56, 189, 248, 0.05)',
+                   color: formData.income === r ? '#FFFFFF' : 'var(--text-primary)',
                 }}
               >
                 {r}
@@ -105,10 +105,10 @@ const InputPanel = ({ onComplete }) => {
               >
                 <div style={{
                   ...styles.checkbox,
-                  background: formData.docs?.includes(doc) ? '#40E0D0' : 'transparent',
-                  borderColor: '#40E0D0'
+                  background: formData.docs?.includes(doc) ? '#22C55E' : 'transparent',
+                  borderColor: '#22C55E'
                 }}>
-                  {formData.docs?.includes(doc) && <Check size={14} color="#000" />}
+                  {formData.docs?.includes(doc) && <Check size={14} color="#FFFFFF" />}
                 </div>
                 <span>{doc}</span>
               </div>
@@ -116,7 +116,7 @@ const InputPanel = ({ onComplete }) => {
           </div>
         );
       default:
-        return <p style={{ textAlign: 'center', color: '#A1A1AA' }}>Form content for {steps[currentStep - 1].title} will be here.</p>;
+        return <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Form content for {steps[currentStep - 1].title} will be here.</p>;
     }
   };
 
@@ -161,7 +161,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#0B0B0B',
+    background: 'var(--gradient-bg)',
     padding: '2rem',
   },
   panelCard: {
@@ -196,7 +196,7 @@ const styles = {
   },
   navBtn: {
     background: 'transparent',
-    color: '#A1A1AA',
+    color: 'var(--text-secondary)',
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
@@ -219,14 +219,14 @@ const styles = {
     gap: '0.8rem',
   },
   label: {
-    color: '#A1A1AA',
+    color: 'var(--text-secondary)',
     fontSize: '0.9rem',
   },
   select: {
-    background: '#1a1a1a',
-    border: '1px solid rgba(64, 224, 208, 0.2)',
+    background: 'var(--bg-primary)',
+    border: '1px solid rgba(56, 189, 248, 0.2)',
     padding: '1rem',
-    color: '#fff',
+    color: 'var(--text-primary)',
     borderRadius: '4px',
     outline: 'none',
   },
@@ -247,7 +247,7 @@ const styles = {
     transition: 'all 0.3s ease',
   },
   iconBox: {
-    color: '#40E0D0',
+    color: '#22C55E',
   },
   buttonGrid: {
     display: 'flex',
@@ -270,11 +270,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
-    background: '#1a1a1a',
+    background: 'rgba(56, 189, 248, 0.05)',
     padding: '1rem',
     borderRadius: '8px',
     cursor: 'pointer',
-    border: '1px solid rgba(64, 224, 208, 0.1)',
+    border: '1px solid rgba(56, 189, 248, 0.1)',
   },
   checkbox: {
     width: '20px',

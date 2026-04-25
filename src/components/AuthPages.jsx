@@ -82,7 +82,7 @@ const AuthPages = ({ type, onSwitch, onFinish }) => {
   const handleGoogleSuccess = async (credentialResponse) => {
     console.log("Google Login Success:", credentialResponse);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+      const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
       const res = await axios.post(`${apiUrl}/google-login`, {
         credential: credentialResponse.credential
       });

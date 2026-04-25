@@ -18,7 +18,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
     const fetchRealData = async () => {
       try {
         setLoading(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+        const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
         const res = await axios.post(`${apiUrl}/portable`, {
           old_state: userData?.homeState || 'Maharashtra',
           new_state: userData?.currentState || 'Goa',

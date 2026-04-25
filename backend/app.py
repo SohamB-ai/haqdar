@@ -15,6 +15,10 @@ CORS(app)
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'schemes.json')
 
+@app.route('/')
+def health_check():
+    return jsonify({"status": "healthy", "message": "HaqDaar Backend is running"}), 200
+
 def load_data():
     with open(DATA_PATH, 'r', encoding='utf-8') as f:
         return pd.DataFrame(json.load(f))

@@ -109,24 +109,27 @@ def simplify_scheme():
 @app.route('/google-login', methods=['POST'])
 def google_login():
     data = request.json
+    credential = data.get('credential')
     access_token = data.get('token')
     
-    if not access_token:
-        return jsonify({"error": "No token provided"}), 400
+    user_info = None
 
     try:
-        # Get user info from Google
-        google_res = requests.get(
-            'https://www.googleapis.com/oauth2/v3/userinfo',
-            headers={'Authorization': f'Bearer {access_token}'}
-        )
-        user_info = google_res.json()
+        if credential:
+            # Verify ID Token (JWT)
+            res = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={credential}')
+            user_info = res.json()
+        elif access_token:
+            # Get user info using Access Token
+            res = requests.get(
+                'https://www.googleapis.com/oauth2/v3/userinfo',
+                headers={'Authorization': f'Bearer {access_token}'}
+            )
+            user_info = res.json()
         
-        if 'error' in user_info:
-            return jsonify({"error": "Invalid token"}), 401
+        if not user_info or 'error' in user_info:
+            return jsonify({"error": "Invalid token or credential", "details": user_info}), 401
 
-        # Here you would typically find or create a user in your database
-        # For now, we'll just return the user info
         return jsonify({
             "message": "Login successful",
             "user": {

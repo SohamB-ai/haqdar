@@ -18,7 +18,8 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
     const fetchRealData = async () => {
       try {
         setLoading(true);
-        const res = await axios.post('http://localhost:5001/portable', {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+        const res = await axios.post(`${apiUrl}/portable`, {
           old_state: userData?.homeState || 'Maharashtra',
           new_state: userData?.currentState || 'Goa',
           occupation: userData?.occupation || 'General',
@@ -58,10 +59,19 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
   // Auto-filter logic based on user profile
   useEffect(() => {
     if (userData?.occupation) {
-      if (userData.occupation.toLowerCase().includes('worker') || userData.occupation.toLowerCase().includes('labor')) {
-        setSelectedCategory('Workers / Labor');
-      } else if (userData.occupation.toLowerCase().includes('driver')) {
-        setSelectedCategory('Workers / Labor');
+      const occ = userData.occupation.toLowerCase();
+      if (occ.includes('worker') || occ.includes('labor') || occ.includes('construction') || occ.includes('factory')) {
+        setSelectedCategory('Social welfare & Empowerment');
+      } else if (occ.includes('driver') || occ.includes('delivery')) {
+        setSelectedCategory('Transport & Infrastructure');
+      } else if (occ.includes('agricultural')) {
+        setSelectedCategory('Agriculture');
+      } else if (occ.includes('sanitation')) {
+        setSelectedCategory('Utility & Sanitation');
+      } else if (occ.includes('student')) {
+        setSelectedCategory('Education & Learning');
+      } else if (occ.includes('business') || occ.includes('employed')) {
+        setSelectedCategory('Business & Entrepreneurship');
       }
     }
   }, [userData]);
@@ -74,12 +84,17 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
   });
 
   const categoryIcons = {
-    'Education': '🎓',
-    'Workers / Labor': '🛠️',
-    'Healthcare': '🏥',
-    'Food & Ration': '🌾',
-    'Housing': '🏠',
-    'Financial Support': '💰'
+    'Education & Learning': '🎓',
+    'Social welfare & Empowerment': '🤝',
+    'Health & Wellness': '🏥',
+    'Agriculture': '🌾',
+    'Housing & Shelter': '🏠',
+    'Skills & Employment': '💼',
+    'Business & Entrepreneurship': '🚀',
+    'Utility & Sanitation': '🧹',
+    'Transport & Infrastructure': '🏗️',
+    'Women and Child': '👩‍👧',
+    'Banking': '🏦'
   };
 
   return (

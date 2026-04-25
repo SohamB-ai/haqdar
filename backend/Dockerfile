@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 5001
 
-CMD ["sh", "-c", "python init_db.py && python app.py"]
+CMD ["sh", "-c", "python init_db.py && gunicorn --bind 0.0.0.0:5001 app:app"]

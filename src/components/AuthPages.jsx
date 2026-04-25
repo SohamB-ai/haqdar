@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sun, Home } from 'lucide-react';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 const FloatingPaths = ({ position }) => {
@@ -79,23 +79,19 @@ const AuthPages = ({ type, onSwitch, onFinish }) => {
   const [passwordError, setPasswordError] = useState("");
   const [isHoveringBtn, setIsHoveringBtn] = useState(false);
 
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      console.log("Google Login Success:", tokenResponse);
-      try {
-        // Send the access token to your backend
-        const res = await axios.post('http://localhost:5001/google-login', {
-          token: tokenResponse.access_token
-        });
-        console.log("Backend response:", res.data);
-        onFinish(res.data.user);
-      } catch (err) {
-        console.error("Google Login Backend Error:", err);
-        alert("Failed to login with Google. Please try again.");
-      }
-    },
-    onError: () => console.log('Login Failed'),
-  });
+  const handleGoogleSuccess = async (credentialResponse) => {
+    console.log("Google Login Success:", credentialResponse);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+      const res = await axios.post(`${apiUrl}/google-login`, {
+        credential: credentialResponse.credential
+      });
+      onFinish(res.data.user);
+    } catch (err) {
+      console.error("Google Login Backend Error:", err);
+      alert("Failed to login with Google. Please try again.");
+    }
+  };
 
   const validateEmail = (value) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -234,14 +230,16 @@ const AuthPages = ({ type, onSwitch, onFinish }) => {
               <div style={styles.line}></div>
             </div>
 
-            <button
-              type="button"
-              style={styles.googleBtn}
-              onClick={() => loginWithGoogle()}
-            >
-              <GoogleIcon />
-              <span>{isSignIn ? "Sign in with Google" : "Sign up with Google"}</span>
-            </button>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => console.log('Login Failed')}
+                theme="filled_black"
+                shape="pill"
+                text={isSignIn ? "signin_with" : "signup_with"}
+                width="320"
+              />
+            </div>
 
             <div style={styles.footerText}>
               {isSignIn ? "Don't have an account? " : "Already have an account? "}

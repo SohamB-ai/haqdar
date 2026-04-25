@@ -88,7 +88,7 @@ const AuthPages = ({ type, onSwitch, onFinish }) => {
           token: tokenResponse.access_token
         });
         console.log("Backend response:", res.data);
-        onFinish();
+        onFinish(res.data.user);
       } catch (err) {
         console.error("Google Login Backend Error:", err);
         alert("Failed to login with Google. Please try again.");
@@ -125,8 +125,7 @@ const AuthPages = ({ type, onSwitch, onFinish }) => {
 
     if (valid) {
       console.log("Form submitted successfully!");
-      // Proceed to the next step
-      onFinish();
+      onFinish({ name: email.split('@')[0], email: email });
     }
   };
 

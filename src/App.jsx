@@ -12,6 +12,8 @@ import ScrollCheckpoints from './components/ScrollCheckpoints';
 
 function App() {
   const [view, setView] = useState('landing');
+  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -60,21 +62,35 @@ function App() {
           </>
         );
       case 'signin':
-        return <AuthPages type="signin" onSwitch={setView} onFinish={() => setView('landing')} />;
+        return <AuthPages type="signin" onSwitch={setView} onFinish={(u) => {
+          setUser(u);
+          setView('dashboard');
+        }} />;
       case 'signup':
-        return <AuthPages type="signup" onSwitch={setView} onFinish={() => setView('input')} />;
+        return <AuthPages type="signup" onSwitch={setView} onFinish={(u) => {
+          setUser(u);
+          setView('input');
+        }} />;
+      case 'input':
       case 'input':
         return <InputPanel 
-          onHome={() => setView('landing')}
           onComplete={(data) => {
-            console.log('Form completed:', data);
+            setUserData(data);
             setView('transition');
           }} 
         />;
       case 'transition':
         return <TransitionPage onHome={() => setView('landing')} onNavigate={handleNavigate} />;
       case 'dashboard':
-        return <Dashboard onHome={() => setView('landing')} />;
+        return <Dashboard 
+          googleUser={user} 
+          userData={userData} 
+          onLogout={() => {
+            setUser(null);
+            setUserData(null);
+            setView('landing');
+          }} 
+        />;
       default:
         return <div>404 Page Not Found</div>;
     }

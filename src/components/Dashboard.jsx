@@ -1,16 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark, Home } from 'lucide-react';
-import { comparisonData } from './dashboardData';
+import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark, User, LogOut, Settings, Heart, Search, Home } from 'lucide-react';
+import { comparisonData as mockData } from './dashboardData';
+import axios from 'axios';
 
-const Dashboard = ({ userData, onHome }) => {
+const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedScheme, setSelectedScheme] = useState(null);
   const [compareMode, setCompareMode] = useState('Category');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [schemes, setSchemes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredRows = selectedCategory === 'All'
-    ? comparisonData.rows
-    : comparisonData.rows.filter(row => row.category === selectedCategory);
+  // Fetch real data from backend
+  useEffect(() => {
+    const fetchRealData = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.post('http://localhost:5001/portable', {
+          old_state: userData?.homeState || 'Maharashtra',
+          new_state: userData?.currentState || 'Goa',
+          occupation: userData?.occupation || 'General',
+          income: userData?.income || 0
+        });
+        
+        // Transform backend data to match the UI structure
+        // The backend returns { portable_schemes: [], new_state_schemes: [] }
+        const transformed = res.data.portable_schemes.map((ps, idx) => ({
+          id: ps.id,
+          category: ps.schemeCategory.split(',')[0],
+          status: 'Available',
+          current: {
+            name: ps.scheme_name,
+            desc: ps.details.substring(0, 80) + '...',
+            id: ps.id
+          },
+          migrated: {
+            name: ps.scheme_name, // Portable means same scheme
+            desc: ps.details.substring(0, 80) + '...',
+            id: ps.id
+          }
+        }));
+
+        setSchemes(transformed.length > 0 ? transformed : mockData.rows);
+      } catch (err) {
+        console.error("Error fetching schemes:", err);
+        setSchemes(mockData.rows);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealData();
+  }, [userData]);
+
+  // Auto-filter logic based on user profile
+  useEffect(() => {
+    if (userData?.occupation) {
+      if (userData.occupation.toLowerCase().includes('worker') || userData.occupation.toLowerCase().includes('labor')) {
+        setSelectedCategory('Workers / Labor');
+      } else if (userData.occupation.toLowerCase().includes('driver')) {
+        setSelectedCategory('Workers / Labor');
+      }
+    }
+  }, [userData]);
+
+  const filteredRows = schemes.filter(row => {
+    const matchesCategory = selectedCategory === 'All' || row.category.includes(selectedCategory);
+    const matchesSearch = row.current?.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          row.migrated?.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const categoryIcons = {
+    'Education': '🎓',
+    'Workers / Labor': '🛠️',
+    'Healthcare': '🏥',
+    'Food & Ration': '🌾',
+    'Housing': '🏠',
+    'Financial Support': '💰'
+  };
 
   return (
     <div style={styles.dashboard}>
@@ -23,9 +93,60 @@ const Dashboard = ({ userData, onHome }) => {
           <h1 style={styles.headerTitle}>Your Welfare Comparison</h1>
         </div>
         <div style={styles.headerCenter}>
-          <span style={{ color: 'var(--accent-primary)' }}>Maharashtra</span>
-          <ArrowRight size={20} style={{ color: 'var(--accent-primary)', margin: '0 1rem' }} />
-          <span style={{ color: 'var(--accent-primary)' }}>Goa</span>
+          <div style={styles.locationBadge}>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', display: 'block' }}>HOME</span>
+            <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{userData?.homeState || 'Maharashtra'}</span>
+          </div>
+          <motion.div 
+            animate={{ x: [0, 5, 0] }} 
+            transition={{ repeat: Infinity, duration: 2 }}
+            style={{ margin: '0 1.5rem', color: 'var(--accent-primary)', opacity: 0.5 }}
+          >
+            <ArrowRight size={24} />
+          </motion.div>
+          <div style={styles.locationBadge}>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', display: 'block' }}>CURRENT</span>
+            <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{userData?.currentState || 'Goa'}</span>
+          </div>
+        </div>
+        <div style={styles.headerRight}>
+          <div 
+            style={styles.profileWrapper}
+            onMouseEnter={() => setShowProfileMenu(true)}
+            onMouseLeave={() => setShowProfileMenu(false)}
+          >
+            {googleUser?.picture ? (
+              <img src={googleUser.picture} style={styles.profileImg} alt="profile" />
+            ) : (
+              <div style={styles.profileIcon}>{googleUser?.name?.[0] || 'S'}</div>
+            )}
+            
+            <AnimatePresence>
+              {showProfileMenu && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  style={styles.profileMenu}
+                >
+                  <div style={styles.menuHeader}>
+                    <div style={{ fontWeight: '700' }}>{googleUser?.name || 'User'}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{googleUser?.email}</div>
+                  </div>
+                  <div style={styles.menuDivider} />
+                  <div style={styles.menuItem}>My Saved Schemes</div>
+                  <div style={styles.menuItem}>Profile Settings</div>
+                  <div style={styles.menuDivider} />
+                  <div 
+                    style={{ ...styles.menuItem, color: '#EF4444' }}
+                    onClick={onLogout}
+                  >
+                    Logout
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </header>
 
@@ -33,23 +154,28 @@ const Dashboard = ({ userData, onHome }) => {
         {/* 📂 LEFT SIDEBAR */}
         <aside style={styles.sidebar}>
           <div style={styles.sidebarSection}>
-            <h3 style={styles.sidebarTitle}><Filter size={18} /> Filters</h3>
+            <h3 style={styles.sidebarTitle}><Filter size={18} /> Categories</h3>
             <div style={styles.filterList}>
-              {['All', ...comparisonData.categories].map(cat => (
+              {['All', ...mockData.categories].map(cat => (
                 <div
                   key={cat}
                   style={{
                     ...styles.filterItem,
-                    color: selectedCategory === cat ? 'var(--accent-primary)' : 'var(--text-secondary)'
+                    background: selectedCategory === cat ? 'rgba(64, 224, 208, 0.1)' : 'transparent',
+                    color: selectedCategory === cat ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                    padding: '0.8rem 1rem',
+                    borderRadius: '8px',
+                    border: selectedCategory === cat ? '1px solid rgba(64, 224, 208, 0.2)' : '1px solid transparent',
                   }}
                   onClick={() => setSelectedCategory(cat)}
                 >
-                  <div style={{
-                    ...styles.checkbox,
-                    background: selectedCategory === cat ? 'var(--accent-primary)' : 'transparent',
-                    borderColor: 'var(--accent-primary)'
-                  }} />
-                  {cat}
+                  <span style={{ fontSize: '1.2rem' }}>{categoryIcons[cat] || '📂'}</span>
+                  <span style={{ flex: 1 }}>{cat}</span>
+                  {cat !== 'All' && (
+                    <span style={styles.countBadge}>
+                      {schemes.filter(r => r.category.includes(cat)).length}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
@@ -71,20 +197,28 @@ const Dashboard = ({ userData, onHome }) => {
         <main style={styles.content}>
           {/* Summary Bar */}
           <div style={styles.summaryBar}>
-            <div style={styles.modeToggle}>
-              <span
-                style={{ ...styles.modeBtn, color: compareMode === 'Category' ? 'var(--accent-primary)' : 'var(--text-primary)' }}
-                onClick={() => setCompareMode('Category')}
-              >Compare by Category</span>
-              <span
-                style={{ ...styles.modeBtn, color: compareMode === 'Eligibility' ? 'var(--accent-primary)' : 'var(--text-primary)' }}
-                onClick={() => setCompareMode('Eligibility')}
-              >Compare by Eligibility</span>
+            <div style={styles.portabilityScore}>
+              <div style={styles.scoreRing}>
+                <span style={styles.scoreVal}>85%</span>
+              </div>
+              <div>
+                <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Welfare Match</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Based on your migration profile</div>
+              </div>
             </div>
             <div style={styles.summaryStats}>
-              <span style={styles.stat}><span style={{ color: '#10B981' }}>●</span> 3 benefits continue</span>
-              <span style={styles.stat}><span style={{ color: '#3B82F6' }}>●</span> 2 new available</span>
-              <span style={styles.stat}><span style={{ color: '#F59E0B' }}>●</span> 1 requires action</span>
+              <div style={styles.statBox}>
+                <span style={{ color: '#10B981', fontSize: '1.2rem', fontWeight: 'bold' }}>3</span>
+                <span>Continuing</span>
+              </div>
+              <div style={styles.statBox}>
+                <span style={{ color: '#3B82F6', fontSize: '1.2rem', fontWeight: 'bold' }}>2</span>
+                <span>New Available</span>
+              </div>
+              <div style={styles.statBox}>
+                <span style={{ color: '#F59E0B', fontSize: '1.2rem', fontWeight: 'bold' }}>1</span>
+                <span>Needs Action</span>
+              </div>
             </div>
           </div>
 
@@ -96,41 +230,59 @@ const Dashboard = ({ userData, onHome }) => {
           </div>
 
           <div style={styles.gridBody}>
-            {filteredRows.map((row, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                style={styles.comparisonRow}
-              >
-                {/* Current Side */}
-                <div style={styles.rowSide}>
-                  {row.current ? (
-                    <SchemeCard scheme={row.current} onOpen={() => setSelectedScheme(row.current)} />
-                  ) : (
-                    <div style={styles.emptyCard}>No existing scheme in this category</div>
-                  )}
-                </div>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  style={{ display: 'inline-block', marginBottom: '1rem', fontSize: '2rem' }}
+                >
+                  ⏳
+                </motion.div>
+                <p>Matching your profile with 57,000+ schemes...</p>
+              </div>
+            ) : filteredRows.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)' }}>
+                <Search size={48} style={{ marginBottom: '1rem', opacity: 0.3 }} />
+                <p>No matching schemes found for this category.</p>
+                <p style={{ fontSize: '0.8rem', opacity: 0.5 }}>Try selecting "All" or searching for keywords.</p>
+              </div>
+            ) : (
+              filteredRows.map((row, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  style={styles.comparisonRow}
+                >
+                  {/* Current Side */}
+                  <div style={styles.rowSide}>
+                    {row.current ? (
+                      <SchemeCard scheme={row.current} onOpen={() => setSelectedScheme(row.current)} />
+                    ) : (
+                      <div style={styles.emptyCard}>No existing scheme in this category</div>
+                    )}
+                  </div>
 
-                {/* Divider */}
-                <div style={styles.rowDivider} />
+                  {/* Divider */}
+                  <div style={styles.rowDivider} />
 
-                {/* Migrated Side */}
-                <div style={styles.rowSide}>
-                  {row.migrated ? (
-                    <SchemeCard
-                      scheme={row.migrated}
-                      onOpen={() => setSelectedScheme(row.migrated)}
-                      highlight={row.migrated.isNew}
-                      faded={row.migrated.isFaded}
-                    />
-                  ) : (
-                    <div style={styles.emptyCard}>Benefit lost after migration</div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                  {/* Migrated Side */}
+                  <div style={styles.rowSide}>
+                    {row.migrated ? (
+                      <SchemeCard
+                        scheme={row.migrated}
+                        onOpen={() => setSelectedScheme(row.migrated)}
+                        highlight={true}
+                      />
+                    ) : (
+                      <div style={styles.emptyCard}>Benefit lost after migration</div>
+                    )}
+                  </div>
+                </motion.div>
+              ))
+            )}
           </div>
         </main>
       </div>
@@ -268,6 +420,18 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
   },
+  profileWrapper: {
+    position: 'relative',
+    cursor: 'pointer',
+    padding: '0.5rem',
+  },
+  profileImg: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    border: '2px solid var(--accent-primary)',
+    objectFit: 'cover',
+  },
   profileIcon: {
     width: '40px',
     height: '40px',
@@ -278,6 +442,44 @@ const styles = {
     justifyContent: 'center',
     color: '#FFFFFF',
     fontWeight: '700',
+  },
+  profileMenu: {
+    position: 'absolute',
+    top: '100%',
+    right: 0,
+    width: '240px',
+    background: 'var(--bg-primary)',
+    border: '1px solid rgba(64, 224, 208, 0.2)',
+    borderRadius: '12px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+    padding: '1rem',
+    zIndex: 1000,
+    marginTop: '0.5rem',
+  },
+  menuHeader: {
+    padding: '0.5rem',
+    marginBottom: '0.5rem',
+  },
+  menuDivider: {
+    height: '1px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    margin: '0.5rem 0',
+  },
+  menuItem: {
+    padding: '0.8rem 1rem',
+    borderRadius: '6px',
+    fontSize: '0.9rem',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      background: 'rgba(255, 255, 255, 0.03)',
+    }
+  },
+  countBadge: {
+    fontSize: '0.7rem',
+    background: 'rgba(255, 255, 255, 0.05)',
+    padding: '0.2rem 0.5rem',
+    borderRadius: '10px',
+    color: 'var(--text-secondary)',
   },
   mainContainer: {
     display: 'flex',
@@ -522,6 +724,46 @@ const styles = {
     justifyContent: 'center',
     color: 'var(--text-secondary)',
     border: '1px solid rgba(34, 211, 238, 0.1)',
+  },
+  locationBadge: {
+    padding: '0.5rem 1rem',
+    background: 'rgba(56, 189, 248, 0.03)',
+    border: '1px solid rgba(56, 189, 248, 0.1)',
+    borderRadius: '8px',
+    textAlign: 'center',
+    minWidth: '140px',
+  },
+  portabilityScore: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1.5rem',
+  },
+  scoreRing: {
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    border: '4px solid #10B981',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(16, 185, 129, 0.1)',
+  },
+  scoreVal: {
+    fontWeight: '800',
+    fontSize: '1rem',
+    color: '#10B981',
+  },
+  statBox: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.2rem',
+    fontSize: '0.8rem',
+    color: 'var(--text-secondary)',
+    background: 'rgba(255, 255, 255, 0.02)',
+    padding: '0.8rem 1.2rem',
+    borderRadius: '8px',
+    minWidth: '100px',
   },
 };
 

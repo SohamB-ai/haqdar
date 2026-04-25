@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark } from 'lucide-react';
+import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark, Home } from 'lucide-react';
 import { comparisonData } from './dashboardData';
 
-const Dashboard = ({ userData }) => {
+const Dashboard = ({ userData, onHome }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedScheme, setSelectedScheme] = useState(null);
   const [compareMode, setCompareMode] = useState('Category');
@@ -17,15 +17,15 @@ const Dashboard = ({ userData }) => {
       {/* 🔝 TOP HEADER */}
       <header style={styles.header}>
         <div style={styles.headerLeft}>
+          <div style={styles.homeIcon} onClick={onHome}>
+            <Home size={20} />
+          </div>
           <h1 style={styles.headerTitle}>Your Welfare Comparison</h1>
         </div>
         <div style={styles.headerCenter}>
           <span style={{ color: 'var(--accent-primary)' }}>Maharashtra</span>
           <ArrowRight size={20} style={{ color: 'var(--accent-primary)', margin: '0 1rem' }} />
           <span style={{ color: 'var(--accent-primary)' }}>Goa</span>
-        </div>
-        <div style={styles.headerRight}>
-          <div style={styles.profileIcon}>S</div>
         </div>
       </header>
 
@@ -232,7 +232,7 @@ const styles = {
   header: {
     padding: '1rem 3rem',
     background: 'var(--bg-primary)',
-    borderBottom: '1px solid rgba(56, 189, 248, 0.1)',
+    borderBottom: '1px solid rgba(34, 211, 238, 0.1)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -245,6 +245,22 @@ const styles = {
     fontWeight: '700',
     letterSpacing: '0.15em',
     textTransform: 'uppercase',
+  },
+  headerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1.5rem',
+  },
+  homeIcon: {
+    cursor: 'pointer',
+    color: 'var(--accent-primary)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.5rem',
+    borderRadius: '8px',
+    background: 'rgba(34, 211, 238, 0.1)',
+    transition: 'all 0.3s ease',
   },
   headerCenter: {
     fontSize: '1.1rem',
@@ -270,7 +286,7 @@ const styles = {
   sidebar: {
     width: '280px',
     background: 'var(--bg-primary)',
-    borderRight: '1px solid rgba(56, 189, 248, 0.05)',
+    borderRight: '1px solid rgba(34, 211, 238, 0.05)',
     padding: '2rem',
     height: 'calc(100vh - 65px)',
     position: 'sticky',
@@ -316,7 +332,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    background: 'rgba(56, 189, 248, 0.05)',
+    background: 'rgba(34, 211, 238, 0.05)',
     padding: '1rem 2rem',
     borderRadius: '8px',
     marginBottom: '2rem',
@@ -342,13 +358,12 @@ const styles = {
     fontSize: '1.2rem',
     fontWeight: '700',
     color: 'var(--accent-primary)',
-    borderBottom: '1px solid rgba(56, 189, 248, 0.2)',
+    borderBottom: '1px solid rgba(34, 211, 238, 0.2)',
     marginBottom: '2rem',
   },
   divider: {
-    width: '1px',
+    width: '3px',
     background: 'var(--accent-primary)',
-    boxShadow: '0 0 10px rgba(56, 189, 248, 0.3)',
   },
   gridBody: {
     display: 'flex',
@@ -365,8 +380,9 @@ const styles = {
     flex: 1,
   },
   rowDivider: {
-    width: '1px',
-    background: 'rgba(56, 189, 248, 0.1)',
+    width: '2px',
+    background: 'var(--accent-primary)',
+    opacity: 0.6,
   },
   card: {
     padding: '1.5rem',
@@ -382,7 +398,7 @@ const styles = {
   categoryTag: {
     fontSize: '0.7rem',
     padding: '0.2rem 0.6rem',
-    background: 'rgba(56, 189, 248, 0.05)',
+    background: 'rgba(34, 211, 238, 0.05)',
     borderRadius: '4px',
     color: 'var(--text-secondary)',
   },
@@ -480,7 +496,7 @@ const styles = {
     gap: '0.8rem',
   },
   tag: {
-    background: 'rgba(56, 189, 248, 0.1)',
+    background: 'rgba(34, 211, 238, 0.1)',
     color: 'var(--accent-primary)',
     padding: '0.5rem 1rem',
     borderRadius: '20px',
@@ -505,7 +521,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     color: 'var(--text-secondary)',
-    border: '1px solid rgba(56, 189, 248, 0.1)',
+    border: '1px solid rgba(34, 211, 238, 0.1)',
   },
 };
 

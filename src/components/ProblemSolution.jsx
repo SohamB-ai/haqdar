@@ -51,13 +51,6 @@ const ProblemSolution = () => {
             <li>Lack of awareness leads to millions in unclaimed benefits.</li>
           </motion.ul>
         </div>
-        <div style={styles.visual}>
-          <motion.div
-            animate={{ scale: [1, 1.05, 1], opacity: [0.5, 0.8, 0.5] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            style={styles.abstractCircle}
-          />
-        </div>
       </section>
 
       {/* Solution Section */}
@@ -122,18 +115,6 @@ const styles = {
     gap: '2rem',
     lineHeight: '1.8',
   },
-  visual: {
-    flex: 1,
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  abstractCircle: {
-    width: '300px',
-    height: '300px',
-    borderRadius: '50%',
-    border: '2px solid #22C55E',
-    boxShadow: '0 0 50px rgba(56, 189, 248, 0.2)',
-  },
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
@@ -146,11 +127,11 @@ const styles = {
     alignItems: 'center',
   },
   iconBox: {
-    color: '#22C55E',
+    color: '#22D3EE',
     marginBottom: '1.5rem',
     padding: '1rem',
     borderRadius: '12px',
-    background: 'rgba(56, 189, 248, 0.05)',
+    background: 'rgba(34, 211, 238, 0.05)',
   },
   cardTitle: {
     fontSize: '1.2rem',

@@ -103,7 +103,7 @@ const styles = {
   stepNum: {
     fontSize: '3rem',
     fontWeight: '800',
-    color: 'rgba(56, 189, 248, 0.1)',
+    color: 'rgba(34, 211, 238, 0.1)',
     marginBottom: '-1.5rem',
     zIndex: 0,
   },
@@ -125,7 +125,7 @@ const styles = {
     right: '-1.5rem',
     width: '3rem',
     height: '1px',
-    background: 'rgba(56, 189, 248, 0.2)',
+    background: 'rgba(34, 211, 238, 0.2)',
   },
   techGrid: {
     display: 'grid',
@@ -137,12 +137,12 @@ const styles = {
     background: 'var(--glass-bg)',
     padding: '2rem',
     borderRadius: '12px',
-    border: '1px solid rgba(56, 189, 248, 0.1)',
+    border: '1px solid rgba(34, 211, 238, 0.1)',
   },
   techCategory: {
     fontSize: '1.2rem',
     marginBottom: '1.5rem',
-    color: '#22C55E',
+    color: '#22D3EE',
   },
   tags: {
     display: 'flex',
@@ -151,7 +151,7 @@ const styles = {
     justifyContent: 'center',
   },
   tag: {
-    background: 'rgba(56, 189, 248, 0.05)',
+    background: 'rgba(34, 211, 238, 0.05)',
     padding: '0.4rem 1rem',
     borderRadius: '20px',
     fontSize: '0.9rem',

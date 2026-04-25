@@ -7,6 +7,7 @@ import { HowItWorks, TechStack } from './components/Sections';
 import AuthPages from './components/AuthPages';
 import InputPanel from './components/InputPanel';
 import Dashboard from './components/Dashboard';
+import TransitionPage from './components/TransitionPage';
 import ScrollCheckpoints from './components/ScrollCheckpoints';
 
 function App() {
@@ -63,12 +64,17 @@ function App() {
       case 'signup':
         return <AuthPages type="signup" onSwitch={setView} onFinish={() => setView('input')} />;
       case 'input':
-        return <InputPanel onComplete={(data) => {
-          console.log('Form completed:', data);
-          setView('dashboard');
-        }} />;
+        return <InputPanel 
+          onHome={() => setView('landing')}
+          onComplete={(data) => {
+            console.log('Form completed:', data);
+            setView('transition');
+          }} 
+        />;
+      case 'transition':
+        return <TransitionPage onHome={() => setView('landing')} onNavigate={handleNavigate} />;
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onHome={() => setView('landing')} />;
       default:
         return <div>404 Page Not Found</div>;
     }
@@ -76,7 +82,7 @@ function App() {
 
   return (
     <div style={styles.app}>
-      {(view === 'landing' || view === 'home') && <Navbar onNavigate={handleNavigate} />}
+      {view !== 'input' && view !== 'transition' && <Navbar onNavigate={handleNavigate} currentView={view} isDashboard={view === 'dashboard'} />}
       {renderView()}
     </div>
   );
@@ -91,7 +97,7 @@ const styles = {
   footer: {
     padding: '4rem',
     textAlign: 'center',
-    borderTop: '1px solid rgba(56, 189, 248, 0.2)',
+    borderTop: '1px solid rgba(34, 211, 238, 0.2)',
     color: 'var(--text-secondary)',
   },
   dashboard: {

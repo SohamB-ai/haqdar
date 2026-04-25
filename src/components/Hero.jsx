@@ -6,6 +6,11 @@ import CanvasCursor from './CanvasCursor';
 const Hero = ({ onGetStarted }) => {
   return (
     <section style={styles.hero}>
+      {/* Decorative Splashes */}
+      <div style={styles.splash1}></div>
+      <div style={styles.splash2}></div>
+      <div style={styles.splash3}></div>
+
       <div style={styles.left}>
         <motion.h1
           initial={{ opacity: 0, x: -50 }}
@@ -36,6 +41,7 @@ const Hero = ({ onGetStarted }) => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
           className="gold-button"
+          style={{ padding: '0.6rem 1.5rem', fontSize: '0.8rem', width: 'fit-content' }}
           onClick={onGetStarted}
         >
           Get Started
@@ -71,12 +77,15 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
+    position: 'relative',
+    zIndex: 10,
   },
   headline: {
-    fontSize: '3rem',
+    fontSize: '3.5rem',
     lineHeight: '1.2',
     marginBottom: '2rem',
     fontWeight: '700',
+    letterSpacing: '-0.02em',
   },
   subtext: {
     fontSize: '1rem',
@@ -84,7 +93,7 @@ const styles = {
     marginBottom: '3rem',
     maxWidth: '450px',
     lineHeight: '1.8',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.01em',
   },
   right: {
     flex: 1,
@@ -95,6 +104,47 @@ const styles = {
   mapWrapper: {
     width: '100%',
     maxWidth: '600px',
+    position: 'relative',
+    zIndex: 10,
+  },
+  splash1: {
+    position: 'absolute',
+    top: '10%',
+    left: '5%',
+    width: '400px',
+    height: '400px',
+    background: 'var(--accent-secondary)', // Deep Blue
+    filter: 'blur(120px)',
+    opacity: 0.4,
+    borderRadius: '50%',
+    zIndex: 1,
+    pointerEvents: 'none',
+  },
+  splash2: {
+    position: 'absolute',
+    bottom: '10%',
+    right: '10%',
+    width: '500px',
+    height: '500px',
+    background: 'var(--accent-primary)', // Cyan
+    filter: 'blur(140px)',
+    opacity: 0.3,
+    borderRadius: '50%',
+    zIndex: 1,
+    pointerEvents: 'none',
+  },
+  splash3: {
+    position: 'absolute',
+    top: '40%',
+    left: '40%',
+    width: '300px',
+    height: '300px',
+    background: 'var(--accent-secondary)', // Deep Blue
+    filter: 'blur(100px)',
+    opacity: 0.35,
+    borderRadius: '50%',
+    zIndex: 1,
+    pointerEvents: 'none',
   },
 };
 

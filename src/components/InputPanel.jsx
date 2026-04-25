@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Truck, Hammer, User, Briefcase, Plus, Check } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Truck, Hammer, User, Briefcase, Plus, Check, Home } from 'lucide-react';
 
 const steps = [
   { id: 1, title: 'Location', question: 'Where are you currently located?' },
@@ -12,7 +12,7 @@ const steps = [
   { id: 7, title: 'Documents', question: 'Which documents do you currently have?' },
 ];
 
-const InputPanel = ({ onComplete }) => {
+const InputPanel = ({ onComplete, onHome }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
 
@@ -40,6 +40,33 @@ const InputPanel = ({ onComplete }) => {
             </div>
           </div>
         );
+      case 2:
+        return (
+          <div style={styles.optionGrid}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Age</label>
+              <input type="number" placeholder="25" style={styles.input} />
+            </div>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Gender</label>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                {['Male', 'Female', 'Other'].map(g => (
+                  <button
+                    key={g}
+                    onClick={() => setFormData({ ...formData, gender: g })}
+                    style={{
+                      ...styles.miniBtn,
+                      background: formData.gender === g ? '#22D3EE' : 'rgba(34, 211, 238, 0.05)',
+                      color: formData.gender === g ? '#FFFFFF' : 'var(--text-primary)',
+                    }}
+                  >
+                    {g}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
       case 3:
         const occupations = [
           { name: 'Labor', icon: <Hammer /> },
@@ -58,8 +85,8 @@ const InputPanel = ({ onComplete }) => {
                 onClick={() => setFormData({ ...formData, occupation: occ.name })}
                 style={{
                   ...styles.iconCard,
-                  borderColor: formData.occupation === occ.name ? '#22C55E' : 'rgba(56, 189, 248, 0.1)',
-                  background: formData.occupation === occ.name ? 'rgba(56, 189, 248, 0.1)' : 'var(--bg-primary)',
+                  borderColor: formData.occupation === occ.name ? '#22D3EE' : 'rgba(34, 211, 238, 0.1)',
+                  background: formData.occupation === occ.name ? 'rgba(34, 211, 238, 0.1)' : 'var(--bg-primary)',
                 }}
               >
                 <div style={styles.iconBox}>{occ.icon}</div>
@@ -78,13 +105,59 @@ const InputPanel = ({ onComplete }) => {
                 onClick={() => setFormData({ ...formData, income: r })}
                 style={{
                   ...styles.optionBtn,
-                   background: formData.income === r ? '#22C55E' : 'rgba(56, 189, 248, 0.05)',
+                   background: formData.income === r ? '#22D3EE' : 'rgba(34, 211, 238, 0.05)',
                    color: formData.income === r ? '#FFFFFF' : 'var(--text-primary)',
                 }}
               >
                 {r}
               </button>
             ))}
+          </div>
+        );
+      case 5:
+        const categories = ['General', 'OBC', 'SC', 'ST', 'Minority'];
+        return (
+          <div style={styles.buttonGrid}>
+            {categories.map((c) => (
+              <button
+                key={c}
+                onClick={() => setFormData({ ...formData, category: c })}
+                style={{
+                  ...styles.optionBtn,
+                   background: formData.category === c ? '#22D3EE' : 'rgba(34, 211, 238, 0.05)',
+                   color: formData.category === c ? '#FFFFFF' : 'var(--text-primary)',
+                }}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        );
+      case 6:
+        return (
+          <div style={styles.optionGrid}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Family Size</label>
+              <input type="number" placeholder="4" style={styles.input} />
+            </div>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Differently Abled?</label>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                {['Yes', 'No'].map(v => (
+                  <button
+                    key={v}
+                    onClick={() => setFormData({ ...formData, disability: v })}
+                    style={{
+                      ...styles.miniBtn,
+                      background: formData.disability === v ? '#22D3EE' : 'rgba(34, 211, 238, 0.05)',
+                      color: formData.disability === v ? '#FFFFFF' : 'var(--text-primary)',
+                    }}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         );
       case 7:
@@ -105,8 +178,8 @@ const InputPanel = ({ onComplete }) => {
               >
                 <div style={{
                   ...styles.checkbox,
-                  background: formData.docs?.includes(doc) ? '#22C55E' : 'transparent',
-                  borderColor: '#22C55E'
+                  background: formData.docs?.includes(doc) ? '#22D3EE' : 'transparent',
+                  borderColor: '#22D3EE'
                 }}>
                   {formData.docs?.includes(doc) && <Check size={14} color="#FFFFFF" />}
                 </div>
@@ -131,7 +204,12 @@ const InputPanel = ({ onComplete }) => {
         style={styles.panelCard}
       >
         <div style={styles.header}>
-          <span className="gold-text" style={styles.stepIndicator}>Step {currentStep} of 7</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <span className="gold-text" style={styles.stepIndicator}>Step {currentStep} of 7</span>
+            <div style={styles.homeBtn} onClick={onHome}>
+              <Home size={18} /> Home
+            </div>
+          </div>
           <h2 style={styles.question}>{steps[currentStep - 1].question}</h2>
         </div>
 
@@ -179,8 +257,15 @@ const styles = {
     fontSize: '0.9rem',
     textTransform: 'uppercase',
     letterSpacing: '0.2em',
-    marginBottom: '1rem',
     display: 'block',
+  },
+  homeBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    color: 'var(--text-secondary)',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
   },
   question: {
     fontSize: '2rem',
@@ -223,12 +308,26 @@ const styles = {
     fontSize: '0.9rem',
   },
   select: {
+    color: 'var(--text-primary)',
+    borderRadius: '4px',
+    outline: 'none',
+  },
+  input: {
     background: 'var(--bg-primary)',
-    border: '1px solid rgba(56, 189, 248, 0.2)',
+    border: '1px solid rgba(34, 211, 238, 0.2)',
     padding: '1rem',
     color: 'var(--text-primary)',
     borderRadius: '4px',
     outline: 'none',
+    fontSize: '1rem',
+  },
+  miniBtn: {
+    flex: 1,
+    padding: '0.8rem',
+    borderRadius: '4px',
+    border: '1px solid rgba(34, 211, 238, 0.2)',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
   iconGrid: {
     display: 'grid',
@@ -247,7 +346,7 @@ const styles = {
     transition: 'all 0.3s ease',
   },
   iconBox: {
-    color: '#22C55E',
+    color: '#22D3EE',
   },
   buttonGrid: {
     display: 'flex',
@@ -270,11 +369,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
-    background: 'rgba(56, 189, 248, 0.05)',
+    background: 'rgba(34, 211, 238, 0.05)',
     padding: '1rem',
     borderRadius: '8px',
     cursor: 'pointer',
-    border: '1px solid rgba(56, 189, 248, 0.1)',
+    border: '1px solid rgba(34, 211, 238, 0.1)',
   },
   checkbox: {
     width: '20px',

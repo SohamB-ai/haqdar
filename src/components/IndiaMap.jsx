@@ -23,15 +23,15 @@ const IndiaMap = () => {
           <motion.path
             key={state.id}
             d={state.d}
-            fill={index === activeStateIndex ? '#22C55E' : '#F3F4F6'}
-            stroke="#22C55E"
+            fill={index === activeStateIndex ? '#22D3EE' : '#F3F4F6'}
+            stroke="#22D3EE"
             strokeWidth="0.5"
             initial={{ opacity: 0.3 }}
             animate={{
               opacity: index === activeStateIndex ? 1 : 0.4,
-              fill: index === activeStateIndex ? '#22C55E' : '#F3F4F6',
+              fill: index === activeStateIndex ? '#22D3EE' : '#F3F4F6',
               scale: index === activeStateIndex ? 1.02 : 1,
-              filter: index === activeStateIndex ? 'drop-shadow(0 0 8px rgba(56, 189, 248, 0.8))' : 'none',
+              filter: index === activeStateIndex ? 'drop-shadow(0 0 8px rgba(34, 211, 238, 0.8))' : 'none',
             }}
             transition={{ duration: 0.8 }}
             style={{ cursor: 'pointer' }}
@@ -47,7 +47,10 @@ const IndiaMap = () => {
             exit={{ opacity: 0, y: -10 }}
             style={styles.stateLabel}
           >
-            {statesData[activeStateIndex].name}
+            {statesData[activeStateIndex].name} 
+            <span style={styles.schemeCount}>
+              ({(statesData[activeStateIndex].name.length * 7) % 40 + 20} Schemes)
+            </span>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -76,10 +79,20 @@ const styles = {
   },
   stateLabel: {
     fontSize: '1.2rem',
-    color: '#22C55E',
+    color: '#22D3EE',
     fontWeight: '600',
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  schemeCount: {
+    fontSize: '0.9rem',
+    color: 'var(--text-secondary)',
+    textTransform: 'none',
+    fontWeight: '400',
   },
 };
 

@@ -1,26 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
-// Animation variables
-let ctx;
-let f;
-let pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-let lines = [];
-const E = {
-  debug: true,
-  friction: 0.5,
-  trails: 80,
-  size: 50,
-  dampening: 0.025,
-  tension: 0.99,
-};
-
-function Node() {
-  this.x = 0;
-  this.y = 0;
-  this.vy = 0;
-  this.vx = 0;
-}
-
+// ── Wave oscillator ─────────────────────────────────────────────────────────
 function n(e) {
   this.init(e || {});
 }
@@ -33,13 +13,22 @@ n.prototype = {
   },
   update: function () {
     this.phase += this.frequency;
-    return this.offset + Math.sin(this.phase) * this.amplitude;
+    return (this.offset + Math.sin(this.phase) * this.amplitude);
   },
   value: function () {
     return this.offset + Math.sin(this.phase) * this.amplitude;
   },
 };
 
+// ── Physics node ─────────────────────────────────────────────────────────────
+function Node() {
+  this.x = 0;
+  this.y = 0;
+  this.vy = 0;
+  this.vx = 0;
+}
+
+// ── Trail line ───────────────────────────────────────────────────────────────
 function Line(e) {
   this.init(e || {});
 }
@@ -48,7 +37,7 @@ Line.prototype = {
     this.spring = e.spring + 0.1 * Math.random() - 0.05;
     this.friction = E.friction + 0.01 * Math.random() - 0.005;
     this.nodes = [];
-    for (var t, n = 0; n < E.size; n++) {
+    for (var t, i = 0; i < E.size; i++) {
       t = new Node();
       t.x = pos.x;
       t.y = pos.y;
@@ -60,14 +49,14 @@ Line.prototype = {
     let t = this.nodes[0];
     t.vx += (pos.x - t.x) * e;
     t.vy += (pos.y - t.y) * e;
-    for (var n, i = 0, a = this.nodes.length; i < a; i++) {
+    for (var i = 0, a = this.nodes.length; i < a; i++) {
       t = this.nodes[i];
       if (i > 0) {
-        n = this.nodes[i - 1];
-        t.vx += (n.x - t.x) * e;
-        t.vy += (n.y - t.y) * e;
-        t.vx += n.vx * E.dampening;
-        t.vy += n.vy * E.dampening;
+        const prev = this.nodes[i - 1];
+        t.vx += (prev.x - t.x) * e;
+        t.vy += (prev.y - t.y) * e;
+        t.vx += prev.vx * E.dampening;
+        t.vy += prev.vy * E.dampening;
       }
       t.vx *= this.friction;
       t.vy *= this.friction;
@@ -78,17 +67,17 @@ Line.prototype = {
   },
   draw: function () {
     let e, t;
-    let n = this.nodes[0].x;
-    let i = this.nodes[0].y;
+    let nx = this.nodes[0].x;
+    let ny = this.nodes[0].y;
     ctx.beginPath();
-    ctx.moveTo(n, i);
+    ctx.moveTo(nx, ny);
     let a;
     for (a = 1; a < this.nodes.length - 2; a++) {
       e = this.nodes[a];
       t = this.nodes[a + 1];
-      n = 0.5 * (e.x + t.x);
-      i = 0.5 * (e.y + t.y);
-      ctx.quadraticCurveTo(e.x, e.y, n, i);
+      nx = 0.5 * (e.x + t.x);
+      ny = 0.5 * (e.y + t.y);
+      ctx.quadraticCurveTo(e.x, e.y, nx, ny);
     }
     e = this.nodes[a];
     t = this.nodes[a + 1];
@@ -98,14 +87,26 @@ Line.prototype = {
   },
 };
 
-let animationFrameId;
+// ── Globals ──────────────────────────────────────────────────────────────────
+var ctx,
+  f,
+  pos = {},
+  lines = [],
+  E = {
+    debug: true,
+    friction: 0.5,
+    trails: 80,
+    size: 50,
+    dampening: 0.025,
+    tension: 0.99,
+  };
 
+// ── Event handlers ────────────────────────────────────────────────────────────
 function onMousemove(e) {
   function o() {
     lines = [];
-    for (let i = 0; i < E.trails; i++) {
+    for (let i = 0; i < E.trails; i++)
       lines.push(new Line({ spring: 0.45 + (i / E.trails) * 0.025 }));
-    }
   }
   function c(e) {
     if (e.touches) {
@@ -115,6 +116,7 @@ function onMousemove(e) {
       pos.x = e.clientX;
       pos.y = e.clientY;
     }
+    e.preventDefault();
   }
   function l(e) {
     if (e.touches.length === 1) {
@@ -122,12 +124,11 @@ function onMousemove(e) {
       pos.y = e.touches[0].pageY;
     }
   }
-
-  document.removeEventListener("mousemove", onMousemove);
-  document.removeEventListener("touchstart", onMousemove);
-  document.addEventListener("mousemove", c);
-  document.addEventListener("touchmove", c, { passive: false });
-  document.addEventListener("touchstart", l, { passive: false });
+  document.removeEventListener('mousemove', onMousemove);
+  document.removeEventListener('touchstart', onMousemove);
+  document.addEventListener('mousemove', c);
+  document.addEventListener('touchmove', c, { passive: false });
+  document.addEventListener('touchstart', l, { passive: false });
   c(e);
   o();
   render();
@@ -135,94 +136,77 @@ function onMousemove(e) {
 
 function render() {
   if (ctx && ctx.running) {
-    ctx.globalCompositeOperation = "source-over";
+    ctx.globalCompositeOperation = 'source-over';
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.globalCompositeOperation = "lighter";
-    // Sweep through all colors (full hue spectrum) and make it thinner
-    ctx.strokeStyle = "hsla(200, 100%, 50%, 0.2)"; // Fixed to light blue
-    ctx.lineWidth = 2;
-    for (let t = 0; t < E.trails; t++) {
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = 'hsla(' + Math.round(f.update()) + ', 100%, 65%, 0.05)';
+    ctx.lineWidth = 10;
+    for (var t = 0; t < E.trails; t++) {
       lines[t].update();
       lines[t].draw();
     }
     ctx.frame++;
-    animationFrameId = window.requestAnimationFrame(render);
+    window.requestAnimationFrame(render);
   }
 }
 
 function resizeCanvas() {
   if (ctx && ctx.canvas) {
-    ctx.canvas.width = window.innerWidth;
+    ctx.canvas.width = window.innerWidth - 20;
     ctx.canvas.height = window.innerHeight;
   }
 }
 
-const renderCanvas = function (canvasId) {
-  const canvasEl = document.getElementById(canvasId);
-  if (!canvasEl) return;
-  ctx = canvasEl.getContext("2d");
+function renderCanvas() {
+  const el = document.getElementById('canvas');
+  if (!el) return;
+  ctx = el.getContext('2d');
   ctx.running = true;
   ctx.frame = 1;
   f = new n({
     phase: Math.random() * 2 * Math.PI,
-    amplitude: 180,
-    frequency: 0.005,
-    offset: 180, // Full hue spectrum 0-360
+    amplitude: 15,
+    frequency: 0.0015,
+    offset: 200,
   });
-  
-  // Set initial position
-  pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-  
-  document.addEventListener("mousemove", onMousemove);
-  document.addEventListener("touchstart", onMousemove, { passive: true });
-  document.body.addEventListener("orientationchange", resizeCanvas);
-  window.addEventListener("resize", resizeCanvas);
-  window.addEventListener("focus", () => {
+  document.addEventListener('mousemove', onMousemove);
+  document.addEventListener('touchstart', onMousemove);
+  document.body.addEventListener('orientationchange', resizeCanvas);
+  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('focus', () => {
     if (ctx && !ctx.running) {
       ctx.running = true;
       render();
     }
   });
-  window.addEventListener("blur", () => {
-    if (ctx) ctx.running = true; // Kept true as per original
+  window.addEventListener('blur', () => {
+    if (ctx) ctx.running = true;
   });
   resizeCanvas();
-};
+}
 
+// ── React component ───────────────────────────────────────────────────────────
 export default function CanvasCursor() {
-  const canvasRef = useRef(null);
-
   useEffect(() => {
-    // Start animation
-    if (canvasRef.current) {
-      renderCanvas("cursor-canvas");
-    }
-
-    // Cleanup
+    renderCanvas();
     return () => {
       if (ctx) ctx.running = false;
-      if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
-      // Remove event listeners
-      document.removeEventListener("mousemove", onMousemove);
-      document.removeEventListener("touchstart", onMousemove);
-      window.removeEventListener("resize", resizeCanvas);
-      document.body.removeEventListener("orientationchange", resizeCanvas);
+      document.removeEventListener('mousemove', onMousemove);
+      document.removeEventListener('touchstart', onMousemove);
+      window.removeEventListener('resize', resizeCanvas);
+      document.body.removeEventListener('orientationchange', resizeCanvas);
     };
   }, []);
 
   return (
     <canvas
-      id="cursor-canvas"
-      ref={canvasRef}
+      id="canvas"
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
         pointerEvents: 'none',
-        zIndex: 5, // Behind header (1000) but above background
-        opacity: 0.6 // Slightly transparent to blend well
+        zIndex: 9999,
       }}
     />
   );

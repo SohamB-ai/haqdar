@@ -91,7 +91,7 @@ const styles = {
   footer: {
     padding: '4rem',
     textAlign: 'center',
-    borderTop: '1px solid rgba(56, 189, 248, 0.2)',
+    borderTop: '1px solid rgba(34, 211, 238, 0.2)',
     color: 'var(--text-secondary)',
   },
   dashboard: {

@@ -58,8 +58,8 @@ const InputPanel = ({ onComplete }) => {
                 onClick={() => setFormData({ ...formData, occupation: occ.name })}
                 style={{
                   ...styles.iconCard,
-                  borderColor: formData.occupation === occ.name ? '#22C55E' : 'rgba(56, 189, 248, 0.1)',
-                  background: formData.occupation === occ.name ? 'rgba(56, 189, 248, 0.1)' : 'var(--bg-primary)',
+                  borderColor: formData.occupation === occ.name ? '#22D3EE' : 'rgba(34, 211, 238, 0.1)',
+                  background: formData.occupation === occ.name ? 'rgba(34, 211, 238, 0.1)' : 'var(--bg-primary)',
                 }}
               >
                 <div style={styles.iconBox}>{occ.icon}</div>
@@ -78,7 +78,7 @@ const InputPanel = ({ onComplete }) => {
                 onClick={() => setFormData({ ...formData, income: r })}
                 style={{
                   ...styles.optionBtn,
-                   background: formData.income === r ? '#22C55E' : 'rgba(56, 189, 248, 0.05)',
+                   background: formData.income === r ? '#22D3EE' : 'rgba(34, 211, 238, 0.05)',
                    color: formData.income === r ? '#FFFFFF' : 'var(--text-primary)',
                 }}
               >
@@ -105,8 +105,8 @@ const InputPanel = ({ onComplete }) => {
               >
                 <div style={{
                   ...styles.checkbox,
-                  background: formData.docs?.includes(doc) ? '#22C55E' : 'transparent',
-                  borderColor: '#22C55E'
+                  background: formData.docs?.includes(doc) ? '#22D3EE' : 'transparent',
+                  borderColor: '#22D3EE'
                 }}>
                   {formData.docs?.includes(doc) && <Check size={14} color="#FFFFFF" />}
                 </div>
@@ -224,7 +224,7 @@ const styles = {
   },
   select: {
     background: 'var(--bg-primary)',
-    border: '1px solid rgba(56, 189, 248, 0.2)',
+    border: '1px solid rgba(34, 211, 238, 0.2)',
     padding: '1rem',
     color: 'var(--text-primary)',
     borderRadius: '4px',
@@ -247,7 +247,7 @@ const styles = {
     transition: 'all 0.3s ease',
   },
   iconBox: {
-    color: '#22C55E',
+    color: '#22D3EE',
   },
   buttonGrid: {
     display: 'flex',
@@ -270,11 +270,11 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
-    background: 'rgba(56, 189, 248, 0.05)',
+    background: 'rgba(34, 211, 238, 0.05)',
     padding: '1rem',
     borderRadius: '8px',
     cursor: 'pointer',
-    border: '1px solid rgba(56, 189, 248, 0.1)',
+    border: '1px solid rgba(34, 211, 238, 0.1)',
   },
   checkbox: {
     width: '20px',

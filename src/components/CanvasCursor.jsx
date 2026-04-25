@@ -138,8 +138,8 @@ function render() {
     ctx.globalCompositeOperation = "source-over";
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.globalCompositeOperation = "lighter";
-    // Sweep through all colors (full hue spectrum) and make it thinner
-    ctx.strokeStyle = "hsla(200, 100%, 50%, 0.2)"; // Fixed to light blue
+    // Oscillate between Blue and Purple
+    ctx.strokeStyle = "hsla(" + Math.round(f.update()) + ", 100%, 60%, 0.4)";
     ctx.lineWidth = 2;
     for (let t = 0; t < E.trails; t++) {
       lines[t].update();
@@ -165,9 +165,9 @@ const renderCanvas = function (canvasId) {
   ctx.frame = 1;
   f = new n({
     phase: Math.random() * 2 * Math.PI,
-    amplitude: 180,
-    frequency: 0.005,
-    offset: 180, // Full hue spectrum 0-360
+    amplitude: 15,
+    frequency: 0.01,
+    offset: 190, // Oscillates in the Cyan spectrum
   });
   
   // Set initial position

@@ -61,7 +61,7 @@ const ScrollCheckpoints = () => {
                 <motion.div
                   animate={{
                     scale: isActive ? 1.5 : 1,
-                    backgroundColor: isActive ? 'var(--accent-primary)' : 'rgba(56, 189, 248, 0.2)',
+                    backgroundColor: isActive ? 'var(--accent-primary)' : 'rgba(34, 211, 238, 0.2)',
                   }}
                   transition={{ duration: 0.3 }}
                   style={styles.dot}
@@ -126,7 +126,7 @@ const styles = {
     width: '8px',
     height: '8px',
     borderRadius: '50%',
-    backgroundColor: 'rgba(56, 189, 248, 0.2)',
+    backgroundColor: 'rgba(34, 211, 238, 0.2)',
   },
   line: {
     position: 'absolute',
@@ -134,7 +134,7 @@ const styles = {
     top: '38px', // Starts after the dot (height/2 + dot/2)
     height: '44px', // connects to the next dot
     width: '2px',
-    backgroundColor: 'rgba(56, 189, 248, 0.1)',
+    backgroundColor: 'rgba(34, 211, 238, 0.1)',
   },
 };
 

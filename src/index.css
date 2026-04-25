@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-primary: #000000;
-  --bg-secondary: rgba(0, 0, 0, 0.8);
-  --accent-primary: #38BDF8;
-  --accent-secondary: #0284C7;
-  --accent-light: rgba(56, 189, 248, 0.1);
-  --text-primary: #FFFFFF;
-  --text-secondary: #9CA3AF;
-  --glass-bg: rgba(20, 20, 20, 0.7);
-  --glass-border: rgba(56, 189, 248, 0.2);
-  --glass-shadow: 0 8px 32px rgba(56, 189, 248, 0.1);
+  --bg-primary: #020617;
+  --bg-secondary: #0F172A;
+  --accent-primary: #22D3EE;
+  --accent-secondary: #1D4ED8;
+  --accent-light: rgba(34, 211, 238, 0.1);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(34, 211, 238, 0.2);
+  --glass-shadow: 0 8px 32px rgba(34, 211, 238, 0.1);
   --font-main: 'Outfit', sans-serif;
-  --gradient-bg: linear-gradient(to bottom right, #000000 0%, #082F49 100%);
-  --gradient-accent: linear-gradient(135deg, #38BDF8 0%, #0284C7 100%);
-  --gradient-text: linear-gradient(135deg, #38BDF8, #7DD3FC);
+  --gradient-bg: linear-gradient(to bottom, #020617 0%, #0B1120 100%);
+  --gradient-accent: linear-gradient(135deg, #22D3EE 0%, #1D4ED8 100%);
+  --gradient-text: linear-gradient(135deg, #22D3EE, #60A5FA);
   --letter-spacing-lg: 0.05em;
   --letter-spacing-sm: 0.01em;
 }
@@ -66,7 +66,7 @@ button {
 }
 
 .gold-glow {
-  text-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+  text-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
 }
 
 .gold-border {
@@ -81,14 +81,14 @@ button {
   font-weight: 600;
   font-size: 0.9rem;
   letter-spacing: 0.05em;
-  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 4px 15px rgba(34, 211, 238, 0.3);
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .gold-button:hover {
-  box-shadow: 0 6px 25px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 6px 25px rgba(34, 211, 238, 0.5);
   transform: translateY(-2px);
   filter: brightness(1.05);
 }
@@ -105,8 +105,8 @@ button {
 }
 
 .card:hover {
-  border-color: rgba(56, 189, 248, 0.4);
-  box-shadow: 0 8px 40px rgba(56, 189, 248, 0.15);
+  border-color: rgba(34, 211, 238, 0.4);
+  box-shadow: 0 8px 40px rgba(34, 211, 238, 0.15);
   transform: translateY(-2px);
 }
 
@@ -132,16 +132,16 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(56, 189, 248, 0.05);
+  background: rgba(34, 211, 238, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.3);
+  background: rgba(34, 211, 238, 0.3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.5);
+  background: rgba(34, 211, 238, 0.5);
 }
 
 /* Lenis Smooth Scroll */

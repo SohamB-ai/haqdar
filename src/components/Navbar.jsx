@@ -11,7 +11,7 @@ const Navbar = ({ onNavigate }) => {
 
       <div style={styles.centerIcons}>
         <motion.div
-          whileHover={{ scale: 1.2, color: '#22C55E' }}
+          whileHover={{ scale: 1.2, color: '#22D3EE' }}
           style={styles.iconWrapper}
           onClick={() => {
             if (window.location.pathname !== '/') onNavigate('landing');
@@ -21,7 +21,7 @@ const Navbar = ({ onNavigate }) => {
           <Home size={22} />
         </motion.div>
         <motion.div
-          whileHover={{ scale: 1.2, color: '#22C55E' }}
+          whileHover={{ scale: 1.2, color: '#22D3EE' }}
           style={styles.iconWrapper}
           onClick={() => {
             const el = document.getElementById('problem');
@@ -31,7 +31,7 @@ const Navbar = ({ onNavigate }) => {
           <Info size={22} />
         </motion.div>
         <motion.div
-          whileHover={{ scale: 1.2, color: '#22C55E' }}
+          whileHover={{ scale: 1.2, color: '#22D3EE' }}
           style={styles.iconWrapper}
           onClick={() => {
             const el = document.getElementById('how-it-works');
@@ -41,7 +41,7 @@ const Navbar = ({ onNavigate }) => {
           <Sparkles size={22} />
         </motion.div>
         <motion.div
-          whileHover={{ scale: 1.2, color: '#22C55E' }}
+          whileHover={{ scale: 1.2, color: '#22D3EE' }}
           style={styles.iconWrapper}
           onClick={() => {
             const el = document.getElementById('tech-stack');
@@ -72,7 +72,7 @@ const styles = {
     top: 0,
     width: '100%',
     zIndex: 1000,
-    borderBottom: '1px solid rgba(56, 189, 248, 0.1)',
+    borderBottom: '1px solid rgba(34, 211, 238, 0.1)',
   },
   logo: {
     fontSize: '1.4rem',

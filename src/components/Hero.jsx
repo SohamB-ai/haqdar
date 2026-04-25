@@ -6,6 +6,11 @@ import CanvasCursor from './CanvasCursor';
 const Hero = ({ onGetStarted }) => {
   return (
     <section style={styles.hero}>
+      {/* Decorative Splashes */}
+      <div style={styles.splash1}></div>
+      <div style={styles.splash2}></div>
+      <div style={styles.splash3}></div>
+
       <div style={styles.left}>
         <motion.h1
           initial={{ opacity: 0, x: -50 }}
@@ -71,6 +76,8 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
+    position: 'relative',
+    zIndex: 10,
   },
   headline: {
     fontSize: '3rem',
@@ -95,6 +102,47 @@ const styles = {
   mapWrapper: {
     width: '100%',
     maxWidth: '600px',
+    position: 'relative',
+    zIndex: 10,
+  },
+  splash1: {
+    position: 'absolute',
+    top: '10%',
+    left: '5%',
+    width: '400px',
+    height: '400px',
+    background: 'var(--accent-secondary)', // Deep Blue
+    filter: 'blur(120px)',
+    opacity: 0.4,
+    borderRadius: '50%',
+    zIndex: 1,
+    pointerEvents: 'none',
+  },
+  splash2: {
+    position: 'absolute',
+    bottom: '10%',
+    right: '10%',
+    width: '500px',
+    height: '500px',
+    background: 'var(--accent-primary)', // Cyan
+    filter: 'blur(140px)',
+    opacity: 0.3,
+    borderRadius: '50%',
+    zIndex: 1,
+    pointerEvents: 'none',
+  },
+  splash3: {
+    position: 'absolute',
+    top: '40%',
+    left: '40%',
+    width: '300px',
+    height: '300px',
+    background: 'var(--accent-secondary)', // Deep Blue
+    filter: 'blur(100px)',
+    opacity: 0.35,
+    borderRadius: '50%',
+    zIndex: 1,
+    pointerEvents: 'none',
   },
 };
 

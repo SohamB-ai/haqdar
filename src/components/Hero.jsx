@@ -41,6 +41,7 @@ const Hero = ({ onGetStarted }) => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
           className="gold-button"
+          style={{ padding: '0.6rem 1.5rem', fontSize: '0.8rem', width: 'fit-content' }}
           onClick={onGetStarted}
         >
           Get Started
@@ -84,6 +85,7 @@ const styles = {
     lineHeight: '1.2',
     marginBottom: '2rem',
     fontWeight: '700',
+    letterSpacing: '-0.02em',
   },
   subtext: {
     fontSize: '1rem',
@@ -91,7 +93,7 @@ const styles = {
     marginBottom: '3rem',
     maxWidth: '450px',
     lineHeight: '1.8',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.01em',
   },
   right: {
     flex: 1,

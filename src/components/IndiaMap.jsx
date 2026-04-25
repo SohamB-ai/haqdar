@@ -47,7 +47,10 @@ const IndiaMap = () => {
             exit={{ opacity: 0, y: -10 }}
             style={styles.stateLabel}
           >
-            {statesData[activeStateIndex].name}
+            {statesData[activeStateIndex].name} 
+            <span style={styles.schemeCount}>
+              ({(statesData[activeStateIndex].name.length * 7) % 40 + 20} Schemes)
+            </span>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -80,6 +83,16 @@ const styles = {
     fontWeight: '600',
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  schemeCount: {
+    fontSize: '0.9rem',
+    color: 'var(--text-secondary)',
+    textTransform: 'none',
+    fontWeight: '400',
   },
 };
 

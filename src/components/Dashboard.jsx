@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark } from 'lucide-react';
+import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark, Home } from 'lucide-react';
 import { comparisonData } from './dashboardData';
 
-const Dashboard = ({ userData }) => {
+const Dashboard = ({ userData, onHome }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedScheme, setSelectedScheme] = useState(null);
   const [compareMode, setCompareMode] = useState('Category');
@@ -17,15 +17,15 @@ const Dashboard = ({ userData }) => {
       {/* 🔝 TOP HEADER */}
       <header style={styles.header}>
         <div style={styles.headerLeft}>
+          <div style={styles.homeIcon} onClick={onHome}>
+            <Home size={20} />
+          </div>
           <h1 style={styles.headerTitle}>Your Welfare Comparison</h1>
         </div>
         <div style={styles.headerCenter}>
           <span style={{ color: 'var(--accent-primary)' }}>Maharashtra</span>
           <ArrowRight size={20} style={{ color: 'var(--accent-primary)', margin: '0 1rem' }} />
           <span style={{ color: 'var(--accent-primary)' }}>Goa</span>
-        </div>
-        <div style={styles.headerRight}>
-          <div style={styles.profileIcon}>S</div>
         </div>
       </header>
 
@@ -246,6 +246,22 @@ const styles = {
     letterSpacing: '0.15em',
     textTransform: 'uppercase',
   },
+  headerLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1.5rem',
+  },
+  homeIcon: {
+    cursor: 'pointer',
+    color: 'var(--accent-primary)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.5rem',
+    borderRadius: '8px',
+    background: 'rgba(34, 211, 238, 0.1)',
+    transition: 'all 0.3s ease',
+  },
   headerCenter: {
     fontSize: '1.1rem',
     fontWeight: '600',
@@ -346,9 +362,8 @@ const styles = {
     marginBottom: '2rem',
   },
   divider: {
-    width: '1px',
+    width: '3px',
     background: 'var(--accent-primary)',
-    boxShadow: '0 0 10px rgba(34, 211, 238, 0.3)',
   },
   gridBody: {
     display: 'flex',
@@ -365,8 +380,9 @@ const styles = {
     flex: 1,
   },
   rowDivider: {
-    width: '1px',
-    background: 'rgba(34, 211, 238, 0.1)',
+    width: '2px',
+    background: 'var(--accent-primary)',
+    opacity: 0.6,
   },
   card: {
     padding: '1.5rem',

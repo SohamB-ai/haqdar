@@ -2,10 +2,10 @@ import React from 'react';
 import { Home, Info, Sparkles, Cpu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const Navbar = ({ onNavigate }) => {
+const Navbar = ({ onNavigate, currentView, isDashboard }) => {
   return (
     <nav style={styles.nav}>
-      <div style={styles.logo} onClick={() => onNavigate('home')}>
+      <div style={styles.logo} onClick={() => onNavigate('landing')}>
         Haq<span className="gold-text">Daar</span>
       </div>
 
@@ -53,8 +53,18 @@ const Navbar = ({ onNavigate }) => {
       </div>
 
       <div style={styles.authButtons}>
-        <button style={styles.signIn} onClick={() => onNavigate('signin')}>Sign In</button>
-        <button className="gold-button" style={styles.signUp} onClick={() => onNavigate('signup')}>Sign Up</button>
+        {isDashboard ? (
+          <div style={styles.profileCircle}>
+            <span>S</span>
+          </div>
+        ) : (
+          currentView !== 'signin' && currentView !== 'signup' && (
+            <>
+              <button style={styles.signIn} onClick={() => onNavigate('signin')}>Sign In</button>
+              <button className="gold-button" style={styles.signUp} onClick={() => onNavigate('signup')}>Sign Up</button>
+            </>
+          )
+        )}
       </div>
     </nav>
   );
@@ -103,6 +113,19 @@ const styles = {
   },
   signUp: {
     padding: '0.6rem 1.5rem',
+  },
+  profileCircle: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    background: 'var(--accent-primary)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontWeight: '700',
+    cursor: 'pointer',
+    border: '2px solid rgba(34, 211, 238, 0.3)',
   },
 };
 

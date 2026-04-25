@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sun } from 'lucide-react';
+import { Sun, Home } from 'lucide-react';
 
 const AuthPages = ({ type, onSwitch, onFinish }) => {
   const [email, setEmail] = useState("");
@@ -66,6 +66,11 @@ const AuthPages = ({ type, onSwitch, onFinish }) => {
         {/* Right Pane - Form */}
         <div style={styles.rightPane}>
           <div style={styles.headerArea}>
+            <div style={styles.topNav}>
+               <div style={styles.homeBtn} onClick={() => onSwitch('landing')}>
+                 <Home size={18} /> Home
+               </div>
+            </div>
             <div style={styles.iconWrapper}>
               <Sun size={40} />
             </div>
@@ -221,6 +226,23 @@ const styles = {
     justifyContent: 'center',
     background: '#0F172A',
     zIndex: 10,
+  },
+  topNav: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    marginBottom: '2rem',
+  },
+  homeBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    color: 'var(--text-secondary)',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    transition: 'color 0.2s ease',
+    '&:hover': {
+      color: 'var(--accent-primary)',
+    }
   },
   headerArea: {
     marginBottom: '2.5rem',

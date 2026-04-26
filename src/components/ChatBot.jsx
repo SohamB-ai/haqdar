@@ -28,7 +28,8 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5001/chat', {
+      const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
+      const response = await axios.post(`${apiUrl}/chat`, {
         messages: [...messages, userMessage]
       });
       

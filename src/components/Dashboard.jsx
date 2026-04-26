@@ -138,10 +138,10 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
             onMouseEnter={() => setShowProfileMenu(true)}
             onMouseLeave={() => setShowProfileMenu(false)}
           >
-            {googleUser?.picture ? (
-              <img src={googleUser.picture} style={styles.profileImg} alt="profile" />
+            {googleUser?.imageUrl ? (
+              <img src={googleUser.imageUrl} style={styles.profileImg} alt="profile" />
             ) : (
-              <div style={styles.profileIcon}>{googleUser?.name?.[0] || 'S'}</div>
+              <div style={styles.profileIcon}>{googleUser?.firstName?.[0] || 'U'}</div>
             )}
             
             <AnimatePresence>
@@ -153,8 +153,8 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
                   style={styles.profileMenu}
                 >
                   <div style={styles.menuHeader}>
-                    <div style={{ fontWeight: '700' }}>{googleUser?.name || 'Welfare User'}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{googleUser?.email || 'user@haqdar.in'}</div>
+                    <div style={{ fontWeight: '700' }}>{googleUser?.fullName || 'Welfare User'}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{googleUser?.primaryEmailAddress?.emailAddress || 'user@haqdar.in'}</div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', marginTop: '0.4rem' }}>
                       {userData?.occupation} • {userData?.currentState}
                     </div>

@@ -17,13 +17,30 @@ function App() {
   const { isSignedIn, user, isLoaded } = useUser();
   const { signOut } = useAuth();
   const [prevIsSignedIn, setPrevIsSignedIn] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(() => {
+    const saved = localStorage.getItem('haqdar_user_data');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  useEffect(() => {
+    if (userData) {
+      localStorage.setItem('haqdar_user_data', JSON.stringify(userData));
+    } else {
+      localStorage.removeItem('haqdar_user_data');
+    }
+  }, [userData]);
 
   useEffect(() => {
     // Redirect to input if user just signed in or is on auth pages while signed in
     if (isLoaded) {
-      if (isSignedIn && (view === 'signin' || view === 'signup' || (!prevIsSignedIn && view === 'landing'))) {
-        setView('input');
+      if (isSignedIn) {
+        if (view === 'signin' || view === 'signup' || (!prevIsSignedIn && view === 'landing')) {
+          setView(userData ? 'dashboard' : 'input');
+        }
+      } else {
+        if (view === 'dashboard' || view === 'input' || view === 'transition') {
+          setView('landing');
+        }
       }
       setPrevIsSignedIn(isSignedIn);
     }

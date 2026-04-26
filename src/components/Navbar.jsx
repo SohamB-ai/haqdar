@@ -1,9 +1,10 @@
 import React from 'react';
 import { Home, Info, Sparkles, Cpu, ClipboardList, LayoutDashboard } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Show, UserButton, SignInButton, SignUpButton } from '@clerk/react';
+import { useUser, UserButton, SignInButton, SignUpButton } from '@clerk/react';
 
 const Navbar = ({ onNavigate, currentView, isDashboard }) => {
+  const { isSignedIn } = useUser();
   return (
     <nav style={styles.nav}>
       <div style={styles.logo} onClick={() => onNavigate('landing')}>
@@ -76,44 +77,47 @@ const Navbar = ({ onNavigate, currentView, isDashboard }) => {
           <Cpu size={22} />
         </motion.div>
         
-        <Show when="signed-in">
-          <motion.div
-            whileHover={{ scale: 1.2, color: '#22D3EE' }}
-            style={{
-              ...styles.iconWrapper,
-              color: currentView === 'input' ? 'var(--accent-primary)' : '#A1A1AA'
-            }}
-            onClick={() => onNavigate('input')}
-            title="Discovery Form"
-          >
-            <ClipboardList size={22} />
-          </motion.div>
-          <motion.div
-            whileHover={{ scale: 1.2, color: '#22D3EE' }}
-            style={{
-              ...styles.iconWrapper,
-              color: currentView === 'dashboard' ? 'var(--accent-primary)' : '#A1A1AA'
-            }}
-            onClick={() => onNavigate('dashboard')}
-            title="Dashboard"
-          >
-            <LayoutDashboard size={22} />
-          </motion.div>
-        </Show>
+        {isSignedIn && (
+          <>
+            <motion.div
+              whileHover={{ scale: 1.2, color: '#22D3EE' }}
+              style={{
+                ...styles.iconWrapper,
+                color: currentView === 'input' ? 'var(--accent-primary)' : '#A1A1AA'
+              }}
+              onClick={() => onNavigate('input')}
+              title="Discovery Form"
+            >
+              <ClipboardList size={22} />
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.2, color: '#22D3EE' }}
+              style={{
+                ...styles.iconWrapper,
+                color: currentView === 'dashboard' ? 'var(--accent-primary)' : '#A1A1AA'
+              }}
+              onClick={() => onNavigate('dashboard')}
+              title="Dashboard"
+            >
+              <LayoutDashboard size={22} />
+            </motion.div>
+          </>
+        )}
       </div>
 
       <div style={styles.authButtons}>
-        <Show when="signed-in">
+        {isSignedIn ? (
           <UserButton afterSignOutUrl="/" />
-        </Show>
-        <Show when="signed-out">
-          <SignInButton mode="modal">
-            <button style={styles.signIn}>Sign In</button>
-          </SignInButton>
-          <SignUpButton mode="modal">
-            <button className="gold-button" style={styles.signUp}>Sign Up</button>
-          </SignUpButton>
-        </Show>
+        ) : (
+          <>
+            <SignInButton mode="modal">
+              <button style={styles.signIn}>Sign In</button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="gold-button" style={styles.signUp}>Sign Up</button>
+            </SignUpButton>
+          </>
+        )}
       </div>
     </nav>
   );

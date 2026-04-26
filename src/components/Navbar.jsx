@@ -1,6 +1,7 @@
 import React from 'react';
-import { Home, Info, Sparkles, Cpu } from 'lucide-react';
+import { Home, Info, Sparkles, Cpu, ClipboardList, LayoutDashboard } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Show, UserButton, SignInButton, SignUpButton } from '@clerk/react';
 
 const Navbar = ({ onNavigate, currentView, isDashboard }) => {
   return (
@@ -74,21 +75,45 @@ const Navbar = ({ onNavigate, currentView, isDashboard }) => {
         >
           <Cpu size={22} />
         </motion.div>
+        
+        <Show when="signed-in">
+          <motion.div
+            whileHover={{ scale: 1.2, color: '#22D3EE' }}
+            style={{
+              ...styles.iconWrapper,
+              color: currentView === 'input' ? 'var(--accent-primary)' : '#A1A1AA'
+            }}
+            onClick={() => onNavigate('input')}
+            title="Discovery Form"
+          >
+            <ClipboardList size={22} />
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.2, color: '#22D3EE' }}
+            style={{
+              ...styles.iconWrapper,
+              color: currentView === 'dashboard' ? 'var(--accent-primary)' : '#A1A1AA'
+            }}
+            onClick={() => onNavigate('dashboard')}
+            title="Dashboard"
+          >
+            <LayoutDashboard size={22} />
+          </motion.div>
+        </Show>
       </div>
 
       <div style={styles.authButtons}>
-        {isDashboard ? (
-          <div style={styles.profileCircle}>
-            <span>S</span>
-          </div>
-        ) : (
-          currentView !== 'signin' && currentView !== 'signup' && (
-            <>
-              <button style={styles.signIn} onClick={() => onNavigate('signin')}>Sign In</button>
-              <button className="gold-button" style={styles.signUp} onClick={() => onNavigate('signup')}>Sign Up</button>
-            </>
-          )
-        )}
+        <Show when="signed-in">
+          <UserButton afterSignOutUrl="/" />
+        </Show>
+        <Show when="signed-out">
+          <SignInButton mode="modal">
+            <button style={styles.signIn}>Sign In</button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button className="gold-button" style={styles.signUp}>Sign Up</button>
+          </SignUpButton>
+        </Show>
       </div>
     </nav>
   );

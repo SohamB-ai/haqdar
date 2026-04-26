@@ -9,11 +9,24 @@ import InputPanel from './components/InputPanel';
 import Dashboard from './components/Dashboard';
 import TransitionPage from './components/TransitionPage';
 import ScrollCheckpoints from './components/ScrollCheckpoints';
+import { useUser, useAuth } from '@clerk/react';
 
 function App() {
   const [view, setView] = useState('landing');
-  const [user, setUser] = useState(null);
+  const { isSignedIn, user, isLoaded } = useUser();
+  const { signOut } = useAuth();
+  const [prevIsSignedIn, setPrevIsSignedIn] = useState(false);
   const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    // Redirect to input if user just signed in or is on auth pages while signed in
+    if (isLoaded) {
+      if (isSignedIn && (view === 'signin' || view === 'signup' || (!prevIsSignedIn && view === 'landing'))) {
+        setView('input');
+      }
+      setPrevIsSignedIn(isSignedIn);
+    }
+  }, [isLoaded, isSignedIn, view, prevIsSignedIn]);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -62,19 +75,14 @@ function App() {
           </>
         );
       case 'signin':
-        return <AuthPages type="signin" onSwitch={setView} onFinish={(u) => {
-          setUser(u);
-          setView('dashboard');
-        }} />;
+        return <AuthPages type="signin" onSwitch={setView} onFinish={() => setView('dashboard')} />;
       case 'signup':
-        return <AuthPages type="signup" onSwitch={setView} onFinish={(u) => {
-          setUser(u);
-          setView('input');
-        }} />;
-      case 'input':
+        return <AuthPages type="signup" onSwitch={setView} onFinish={() => setView('input')} />;
       case 'input':
         return <InputPanel 
+          onHome={() => setView('landing')}
           onComplete={(data) => {
+            console.log('Form completed:', data);
             setUserData(data);
             setView('transition');
           }} 
@@ -82,15 +90,7 @@ function App() {
       case 'transition':
         return <TransitionPage onHome={() => setView('landing')} onNavigate={handleNavigate} />;
       case 'dashboard':
-        return <Dashboard 
-          googleUser={user} 
-          userData={userData} 
-          onLogout={() => {
-            setUser(null);
-            setUserData(null);
-            setView('landing');
-          }} 
-        />;
+        return <Dashboard onHome={() => setView('landing')} userData={userData} />;
       default:
         return <div>404 Page Not Found</div>;
     }
@@ -106,25 +106,16 @@ function App() {
 
 const styles = {
   app: {
+    backgroundColor: '#020617',
+    color: '#F8FAFC',
     minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
   },
   footer: {
-    padding: '4rem',
+    padding: '4rem 2rem',
     textAlign: 'center',
-    borderTop: '1px solid rgba(34, 211, 238, 0.2)',
-    color: 'var(--text-secondary)',
-  },
-  dashboard: {
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
-    padding: '2rem',
-  },
+    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+    color: '#64748B',
+  }
 };
 
 export default App;

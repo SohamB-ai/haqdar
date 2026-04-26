@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import IndiaMap from './IndiaMap';
 import CanvasCursor from './CanvasCursor';
 
 const Hero = ({ onGetStarted }) => {
+  const { t } = useTranslation();
+
   return (
     <section style={styles.hero}>
       {/* Decorative Splashes */}
@@ -18,12 +21,12 @@ const Hero = ({ onGetStarted }) => {
           transition={{ duration: 0.8 }}
           style={styles.headline}
         >
-          Access Your Welfare <br />
+          {t('hero.title_part1')} <br />
           <span style={{
             background: 'var(--gradient-text)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
-          }}>Benefits Anywhere</span> in India
+          }}>{t('hero.title_part2')}</span>
         </motion.h1>
 
         <motion.p
@@ -32,8 +35,7 @@ const Hero = ({ onGetStarted }) => {
           transition={{ duration: 0.8, delay: 0.2 }}
           style={styles.subtext}
         >
-          Discover, transfer, and claim government schemes seamlessly across states.
-          A unified platform for the modern Indian citizen.
+          {t('hero.subtext')}
         </motion.p>
 
         <motion.button
@@ -44,7 +46,7 @@ const Hero = ({ onGetStarted }) => {
           style={{ padding: '0.6rem 1.5rem', fontSize: '0.8rem', width: 'fit-content' }}
           onClick={onGetStarted}
         >
-          Get Started
+          {t('get_started')}
         </motion.button>
       </div>
 

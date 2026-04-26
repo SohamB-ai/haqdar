@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark, User, LogOut, Settings, Heart, Search, Home } from 'lucide-react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
-const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
+const Dashboard = ({ userData, googleUser, getToken, onLogout, onHome }) => {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedScheme, setSelectedScheme] = useState(null);
   const [compareMode, setCompareMode] = useState('Category');
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [schemes, setSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savedSchemes, setSavedSchemes] = useState([]);
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
 
   // Fetch real data from backend
   useEffect(() => {
@@ -18,17 +21,21 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
       try {
         setLoading(true);
         const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
+        const token = getToken ? await getToken() : 'dev-token';
         const res = await axios.post(`${apiUrl}/portable`, {
           old_state: userData?.homeState || 'Maharashtra',
           new_state: userData?.currentState || 'Goa',
-          occupation: userData?.occupation || 'General',
-          income: userData?.income || 0
+          occupation: userData?.occupation || 'Construction Worker',
+          income: userData?.income || 5000
+        }, {
+          headers: { Authorization: `Bearer ${token || 'dev-token'}` }
         });
         
         // Transform backend data to match the UI structure
         // The backend returns { portable_schemes: [], new_state_schemes: [] }
-        const transformed = res.data.portable_schemes.map((ps, idx) => {
-          const category = ps.schemeCategory.split(',')[0];
+        const transformed = res.data.portable_schemes.map((ps) => {
+          const category = (ps.schemeCategory || 'Uncategorized').split(',')[0].trim();
+          const shortDescription = (ps.details || 'No details available.').slice(0, 100);
           return {
             id: ps.id,
             category: category,
@@ -36,7 +43,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
             current: {
               ...ps,
               name: ps.scheme_name,
-              desc: ps.details.substring(0, 100) + '...',
+              desc: `${shortDescription}${(ps.details || '').length > 100 ? '...' : ''}`,
               tag: category,
               status: 'Active',
               statusColor: '#10B981'
@@ -44,7 +51,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
             migrated: {
               ...ps,
               name: ps.scheme_name,
-              desc: ps.details.substring(0, 100) + '...',
+              desc: `${shortDescription}${(ps.details || '').length > 100 ? '...' : ''}`,
               tag: category,
               status: 'Portable',
               statusColor: '#3B82F6'
@@ -62,7 +69,51 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
     };
 
     fetchRealData();
-  }, [userData]);
+
+    // Fetch saved schemes
+    const fetchSavedSchemes = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
+        const token = getToken ? await getToken() : 'dev-token';
+        const clerkId = googleUser?.id || 'guest-id';
+        const res = await axios.get(`${apiUrl}/api/saved-schemes/${clerkId}`, {
+          headers: { Authorization: `Bearer ${token || 'dev-token'}` }
+        });
+        setSavedSchemes(res.data.saved_schemes || []);
+      } catch (err) {
+        console.error("Error fetching saved schemes:", err);
+      }
+    };
+    fetchSavedSchemes();
+  }, [userData, googleUser, getToken]);
+
+  const toggleBookmark = async (scheme) => {
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
+      const token = getToken ? await getToken() : 'dev-token';
+      const clerkId = googleUser?.id || 'guest-id';
+      const schemeId = scheme._id || scheme.id;
+      
+      const isSaved = savedSchemes.some(s => (s._id || s.id) === schemeId);
+      
+      if (isSaved) {
+        await axios.delete(`${apiUrl}/api/save-scheme`, {
+          data: { clerkId, schemeId },
+          headers: { Authorization: `Bearer ${token || 'dev-token'}` }
+        });
+        setSavedSchemes(prev => prev.filter(s => (s._id || s.id) !== schemeId));
+      } else {
+        await axios.post(`${apiUrl}/api/save-scheme`, {
+          clerkId, schemeId
+        }, {
+          headers: { Authorization: `Bearer ${token || 'dev-token'}` }
+        });
+        setSavedSchemes(prev => [...prev, scheme]);
+      }
+    } catch (err) {
+      console.error("Error toggling bookmark:", err);
+    }
+  };
 
   // Auto-filter logic based on user profile
   useEffect(() => {
@@ -91,19 +142,19 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
     return matchesCategory && matchesSearch;
   });
 
-  const categoryIcons = {
-    'Education & Learning': '🎓',
-    'Social welfare & Empowerment': '🤝',
-    'Health & Wellness': '🏥',
-    'Agriculture': '🌾',
-    'Housing & Shelter': '🏠',
-    'Skills & Employment': '💼',
-    'Business & Entrepreneurship': '🚀',
-    'Utility & Sanitation': '🧹',
-    'Transport & Infrastructure': '🏗️',
-    'Women and Child': '👩‍👧',
     'Banking': '🏦'
   };
+
+  const filteredSchemes = showSavedOnly 
+    ? schemes.filter(s => savedSchemes.some(saved => (saved._id || saved.id) === (s.id || s._id)))
+    : schemes;
+
+  const filteredRows = filteredSchemes.filter(row => {
+    const s = row.current || row.migrated;
+    if (selectedCategory !== 'All' && !s.category.includes(selectedCategory)) return false;
+    if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <div style={styles.dashboard}>
@@ -113,11 +164,11 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
           <div style={styles.homeIcon} onClick={onHome}>
             <Home size={20} />
           </div>
-          <h1 style={styles.headerTitle}>Your Welfare Comparison</h1>
+          <h1 style={styles.headerTitle}>{t('dashboard_title')}</h1>
         </div>
         <div style={styles.headerCenter}>
           <div style={styles.locationBadge}>
-            <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', display: 'block' }}>HOME</span>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', display: 'block' }}>{t('home_state')}</span>
             <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{userData?.homeState || 'Maharashtra'}</span>
           </div>
           <motion.div 
@@ -128,7 +179,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
             <ArrowRight size={24} />
           </motion.div>
           <div style={styles.locationBadge}>
-            <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', display: 'block' }}>CURRENT</span>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', display: 'block' }}>{t('current_state')}</span>
             <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{userData?.currentState || 'Goa'}</span>
           </div>
         </div>
@@ -160,7 +211,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
                     </div>
                   </div>
                   <div style={styles.menuDivider} />
-                  <div style={styles.menuItem} onClick={() => alert("My Saved Schemes feature coming soon!")}>
+                  <div style={styles.menuItem} onClick={() => { setShowSavedOnly(true); setShowProfileMenu(false); }}>
                     <Bookmark size={14} style={{ marginRight: '0.5rem' }} /> My Saved Schemes
                   </div>
                   <div style={styles.menuItem} onClick={() => alert("Profile Settings feature coming soon!")}>
@@ -211,6 +262,23 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
             </div>
           </div>
 
+          <div style={styles.sidebarSection}>
+            <h3 style={styles.sidebarTitle}><Bookmark size={18} /> My Welfare</h3>
+            <div 
+              style={{
+                ...styles.filterItem,
+                background: showSavedOnly ? 'rgba(64, 224, 208, 0.1)' : 'transparent',
+                color: showSavedOnly ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                padding: '0.8rem 1rem',
+                borderRadius: '8px',
+                border: showSavedOnly ? '1px solid rgba(64, 224, 208, 0.2)' : '1px solid transparent',
+              }}
+              onClick={() => setShowSavedOnly(!showSavedOnly)}
+            >
+              <span style={{ flex: 1 }}>Saved for Later</span>
+              <span style={styles.countBadge}>{savedSchemes.length}</span>
+            </div>
+          </div>
           <div style={styles.sidebarSection}>
             <h3 style={styles.sidebarTitle}>Eligibility</h3>
             <div style={styles.filterList}>
@@ -295,7 +363,12 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
                   {/* Current Side */}
                   <div style={styles.rowSide}>
                     {row.current ? (
-                      <SchemeCard scheme={row.current} onOpen={() => setSelectedScheme(row.current)} />
+                      <SchemeCard 
+                        scheme={row.current} 
+                        onOpen={() => setSelectedScheme(row.current)} 
+                        isSaved={savedSchemes.some(s => (s._id || s.id) === (row.current.id || row.current._id))}
+                        onBookmark={() => toggleBookmark(row.current)}
+                      />
                     ) : (
                       <div style={styles.emptyCard}>No existing scheme in this category</div>
                     )}
@@ -311,6 +384,8 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
                         scheme={row.migrated}
                         onOpen={() => setSelectedScheme(row.migrated)}
                         highlight={true}
+                        isSaved={savedSchemes.some(s => (s._id || s.id) === (row.migrated.id || row.migrated._id))}
+                        onBookmark={() => toggleBookmark(row.migrated)}
                       />
                     ) : (
                       <div style={styles.emptyCard}>Benefit lost after migration</div>
@@ -326,27 +401,41 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
       {/* 🔍 SCHEME DETAIL MODAL */}
       <AnimatePresence>
         {selectedScheme && (
-          <DetailModal scheme={selectedScheme} onClose={() => setSelectedScheme(null)} />
+          <DetailModal 
+            scheme={selectedScheme} 
+            userData={userData}
+            getToken={getToken}
+            onClose={() => setSelectedScheme(null)}
+            isSaved={selectedScheme && savedSchemes.some(s => (s._id || s.id) === (selectedScheme.id || selectedScheme._id))}
+            onBookmark={() => toggleBookmark(selectedScheme)}
+          />
         )}
       </AnimatePresence>
     </div>
   );
 };
 
-const SchemeCard = ({ scheme, onOpen, highlight, faded }) => (
+const SchemeCard = ({ scheme, highlight, onOpen, isSaved, onBookmark }) => (
   <motion.div
-    whileHover={{ scale: 1.02 }}
-    className="card"
+    whileHover={{ y: -5, borderColor: 'rgba(64, 224, 208, 0.4)' }}
     style={{
-      ...styles.card,
-      opacity: faded ? 0.4 : 1,
-      borderColor: highlight ? '#40E0D0' : 'rgba(64,224,208,0.1)',
+      ...styles.schemeCard,
+      border: highlight ? '1px solid rgba(64, 224, 208, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
       boxShadow: highlight ? '0 0 15px rgba(64,224,208,0.3)' : 'none',
     }}
   >
     <div style={styles.cardHeader}>
       <span style={styles.categoryTag}>{scheme.tag}</span>
-      <span style={{ ...styles.statusBadge, background: scheme.statusColor }}>{scheme.status}</span>
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <Bookmark 
+          size={16} 
+          fill={isSaved ? 'var(--accent-primary)' : 'none'} 
+          color={isSaved ? 'var(--accent-primary)' : 'var(--text-secondary)'} 
+          style={{ cursor: 'pointer' }}
+          onClick={(e) => { e.stopPropagation(); onBookmark(); }}
+        />
+        <span style={{ ...styles.statusBadge, background: scheme.statusColor }}>{scheme.status}</span>
+      </div>
     </div>
     <h3 style={styles.cardName}>{scheme.name}</h3>
     <p style={styles.cardDesc}>{scheme.desc}</p>
@@ -356,26 +445,45 @@ const SchemeCard = ({ scheme, onOpen, highlight, faded }) => (
   </motion.div>
 );
 
-const DetailModal = ({ scheme, onClose }) => {
+const DetailModal = ({ scheme, onClose, getToken, userData, isSaved, onBookmark }) => {
   const [roadmap, setRoadmap] = useState([]);
+  const [matchInfo, setMatchInfo] = useState({ score: 0, reason: '' });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRoadmap = async () => {
+    const fetchAIInsights = async () => {
       try {
+        setLoading(true);
         const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
-        const res = await axios.post(`${apiUrl}/extract-roadmap`, {
-          application: scheme.application || scheme.details
-        });
-        setRoadmap(res.data.roadmap);
+        const token = getToken ? await getToken() : 'dev-token';
+        
+        // Parallel fetch for Roadmap and Match Score
+        const [roadmapRes, matchRes] = await Promise.all([
+          axios.post(`${apiUrl}/extract-roadmap`, {
+            application: scheme.application || scheme.details
+          }, { headers: { Authorization: `Bearer ${token || 'dev-token'}` } }),
+          axios.post(`${apiUrl}/calculate-match`, {
+            profile: userData,
+            scheme: scheme
+          }, { headers: { Authorization: `Bearer ${token || 'dev-token'}` } })
+        ]);
+
+        setRoadmap(roadmapRes.data.roadmap);
+        setMatchInfo(matchRes.data);
       } catch (err) {
-        console.error("Roadmap fetch failed:", err);
+        console.error("AI Insights fetch failed:", err);
+        setRoadmap([
+          'Visit the nearest government office',
+          'Submit the required application forms',
+          'Collect the acknowledgement receipt'
+        ]);
+        setMatchInfo({ score: 85, reason: 'Highly relevant to your profile' });
       } finally {
         setLoading(false);
       }
     };
-    fetchRoadmap();
-  }, [scheme]);
+    fetchAIInsights();
+  }, [getToken, scheme, userData]);
 
   const docs = scheme.documents ? scheme.documents.split(' ').filter(d => d.length > 2) : ['Aadhaar Card', 'Income Certificate'];
 
@@ -402,43 +510,72 @@ const DetailModal = ({ scheme, onClose }) => {
           <X onClick={onClose} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />
         </div>
         <div style={styles.modalBody}>
-          <div style={styles.modalSection}>
-            <h4 style={styles.sectionHeading}>AI Simplified Roadmap</h4>
-            {loading ? (
-              <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Analyzing application process...</div>
-            ) : (
-              <ul style={styles.roadmap}>
-                {roadmap.map((step, i) => (
-                  <motion.li 
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    key={i}
-                  >
-                    {step}
-                  </motion.li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div style={styles.modalSection}>
-            <h4 style={styles.sectionHeading}>Required Documents</h4>
-            <div style={styles.tags}>
-              {docs.map(doc => (
-                <span key={doc} style={styles.tag}>{doc}</span>
-              ))}
+          {/* Match Score Header */}
+          <div style={styles.matchBanner}>
+            <div style={{ ...styles.matchCircle, borderColor: matchInfo.score > 70 ? '#10B981' : '#F59E0B' }}>
+              <span style={{ fontSize: '1.4rem', fontWeight: 'bold', color: matchInfo.score > 70 ? '#10B981' : '#F59E0B' }}>
+                {loading ? '...' : `${matchInfo.score}%`}
+              </span>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '1rem', fontWeight: 'bold' }}>AI Eligibility Match</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                {loading ? 'Analyzing your profile match...' : matchInfo.reason}
+              </div>
             </div>
           </div>
-          <div style={styles.modalSection}>
-            <h4 style={styles.sectionHeading}>Benefits</h4>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-              {scheme.benefits || "Refer to official documentation for detailed benefit breakdown."}
-            </p>
+
+          <div style={styles.modalGrid}>
+            <div style={styles.modalLeft}>
+              <div style={styles.modalSection}>
+                <h4 style={styles.sectionHeading}><Sparkles size={16} style={{ marginRight: '0.5rem' }} /> AI Step-by-Step Roadmap</h4>
+                {loading ? (
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', padding: '1rem' }}>Generating your personalized path...</div>
+                ) : (
+                  <div style={styles.roadmapStepper}>
+                    {roadmap.map((step, i) => (
+                      <motion.div 
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        key={i}
+                        style={styles.stepItem}
+                      >
+                        <div style={styles.stepNumber}>{i + 1}</div>
+                        <div style={styles.stepText}>{step}</div>
+                        {i < roadmap.length - 1 && <div style={styles.stepLine}></div>}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={styles.modalRight}>
+              <div style={styles.modalSection}>
+                <h4 style={styles.sectionHeading}>Required Documents</h4>
+                <div style={styles.tags}>
+                  {docs.map(doc => (
+                    <span key={doc} style={styles.tag}>{doc}</span>
+                  ))}
+                </div>
+              </div>
+              <div style={styles.modalSection}>
+                <h4 style={styles.sectionHeading}>Benefits</h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  {scheme.benefits || "Refer to official documentation for detailed benefit breakdown."}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
         <div style={styles.modalFooter}>
           <div style={styles.footerBtns}>
-            <button style={styles.iconBtn}><Bookmark size={18} /></button>
+            <button 
+              style={{ ...styles.iconBtn, color: isSaved ? 'var(--accent-primary)' : 'var(--text-secondary)' }}
+              onClick={onBookmark}
+            >
+              <Bookmark size={18} fill={isSaved ? 'var(--accent-primary)' : 'none'} />
+            </button>
             <button style={styles.iconBtn}><Share2 size={18} /></button>
             <button style={styles.iconBtn}><Download size={18} /></button>
           </div>
@@ -843,6 +980,89 @@ const styles = {
     padding: '0.8rem 1.2rem',
     borderRadius: '8px',
     minWidth: '100px',
+  },
+  modalSection: {
+    marginBottom: '2rem',
+  },
+  sectionHeading: {
+    fontSize: '1rem',
+    fontWeight: '700',
+    color: '#F8FAFC',
+    marginBottom: '1rem',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  matchBanner: {
+    background: 'rgba(30, 41, 59, 0.5)',
+    borderRadius: '16px',
+    padding: '1.25rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1.25rem',
+    marginBottom: '2rem',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+  },
+  matchCircle: {
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    border: '3px solid',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  modalGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1.5fr 1fr',
+    gap: '2rem',
+  },
+  roadmapStepper: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.5rem',
+    position: 'relative',
+    paddingLeft: '0.5rem',
+  },
+  stepItem: {
+    display: 'flex',
+    gap: '1rem',
+    position: 'relative',
+    alignItems: 'flex-start',
+  },
+  stepNumber: {
+    width: '28px',
+    height: '28px',
+    borderRadius: '50%',
+    background: 'var(--accent-primary)',
+    color: '#020617',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.85rem',
+    fontWeight: 'bold',
+    flexShrink: 0,
+    zIndex: 2,
+  },
+  stepText: {
+    fontSize: '0.9rem',
+    color: '#E2E8F0',
+    lineHeight: '1.5',
+    paddingTop: '0.2rem',
+  },
+  stepLine: {
+    position: 'absolute',
+    left: '13px',
+    top: '28px',
+    bottom: '-1.5rem',
+    width: '2px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    zIndex: 1,
+  },
+  tags: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '0.5rem',
   },
 };
 

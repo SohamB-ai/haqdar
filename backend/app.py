@@ -166,21 +166,29 @@ def compare_schemes():
         all_home = get_matches(home_state, occupation, gender, 'All', limit=None)
         all_current = get_matches(current_state, occupation, gender, 'All', limit=None)
         
-        # Combine all matched schemes to calculate unique counts per category
-        combined_schemes = all_home + all_current
+        # Calculate exactly how many schemes the frontend will show for each category
+        # The frontend uses: Math.max(home_schemes.length, current_schemes.length)
+        # where each is capped at 15 by the get_matches limit.
+        home_cat_counts = {}
+        for scheme in all_home:
+            cats = str(scheme.get('schemeCategory', 'All')).split(',')
+            for cat in cats:
+                c = cat.strip()
+                if c: home_cat_counts[c] = home_cat_counts.get(c, 0) + 1
+                
+        current_cat_counts = {}
+        for scheme in all_current:
+            cats = str(scheme.get('schemeCategory', 'All')).split(',')
+            for cat in cats:
+                c = cat.strip()
+                if c: current_cat_counts[c] = current_cat_counts.get(c, 0) + 1
+                
         category_counts = {}
-        seen_ids = set()
-        
-        for scheme in combined_schemes:
-            # Create a unique ID for the scheme using its name and state level
-            s_id = str(scheme.get('scheme_name', '')) + str(scheme.get('level', ''))
-            if s_id not in seen_ids:
-                seen_ids.add(s_id)
-                cats = str(scheme.get('schemeCategory', 'All')).split(',')
-                for cat in cats:
-                    c = cat.strip()
-                    if c:
-                        category_counts[c] = category_counts.get(c, 0) + 1
+        all_categories = set(home_cat_counts.keys()).union(set(current_cat_counts.keys()))
+        for c in all_categories:
+            h_count = min(home_cat_counts.get(c, 0), 15)
+            c_count = min(current_cat_counts.get(c, 0), 15)
+            category_counts[c] = max(h_count, c_count)
         
         if genai_client:
             home_matches = rank_with_gemini(data, home_matches)

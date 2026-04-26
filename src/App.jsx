@@ -88,7 +88,7 @@ function App() {
           }} 
         />;
       case 'transition':
-        return <TransitionPage onHome={() => setView('landing')} onNavigate={handleNavigate} />;
+        return <TransitionPage onHome={() => setView('landing')} onNavigate={handleNavigate} userData={userData} />;
       case 'dashboard':
         return <Dashboard onHome={() => setView('landing')} userData={userData} />;
       default:

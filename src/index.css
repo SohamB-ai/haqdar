@@ -110,6 +110,18 @@ button {
   transform: translateY(-2px);
 }
 
+.premium-select:hover {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+  transform: translateY(-1px);
+}
+
+.premium-select option {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 10px;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {

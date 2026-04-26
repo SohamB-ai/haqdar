@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark, User, LogOut, Settings, Heart, Search, Home } from 'lucide-react';
 import { comparisonData as mockData } from './dashboardData';
 import axios from 'axios';
+import AIChatbot from './AIChatbot';
 
 const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -19,42 +20,63 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
       try {
         setLoading(true);
         const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
-        const res = await axios.post(`${apiUrl}/portable`, {
-          old_state: userData?.homeState || 'Maharashtra',
-          new_state: userData?.currentState || 'Goa',
-          occupation: userData?.occupation || 'General',
-          income: userData?.income || 0
-        });
         
-        // Transform backend data to match the UI structure
-        // The backend returns { portable_schemes: [], new_state_schemes: [] }
-        const transformed = res.data.portable_schemes.map((ps, idx) => ({
-          id: ps.id,
-          category: ps.schemeCategory.split(',')[0],
-          status: 'Available',
-          current: {
-            name: ps.scheme_name,
-            desc: ps.details.substring(0, 80) + '...',
-            id: ps.id
-          },
-          migrated: {
-            name: ps.scheme_name, // Portable means same scheme
-            desc: ps.details.substring(0, 80) + '...',
-            id: ps.id
-          }
-        }));
+        console.log('Fetching from:', apiUrl, 'with userData:', userData);
+        
+        const res = await axios.post(`${apiUrl}/compare`, {
+          homeState: userData?.homeState || 'All',
+          currentState: userData?.currentState || 'All',
+          occupation: userData?.occupation || '',
+          category: selectedCategory,
+          gender: userData?.gender || '',
+          income: userData?.income || '',
+        }, { timeout: 30000 });
+        
+        const { home_schemes = [], current_schemes = [] } = res.data;
+        
+        console.log(`Received ${home_schemes.length} home schemes, ${current_schemes.length} current schemes`);
+        
+        // Combine them into a row-based format for the side-by-side view
+        const maxLength = Math.max(home_schemes.length, current_schemes.length);
+        const paired = [];
+        
+        for (let i = 0; i < maxLength; i++) {
+          const home = home_schemes[i];
+          const curr = current_schemes[i];
+          
+          paired.push({
+            category: (home?.schemeCategory || curr?.schemeCategory || 'All').split(',')[0].trim(),
+            current: home ? {
+              ...home,
+              name: home.scheme_name || 'Unnamed Scheme',
+              desc: (home.details || '').substring(0, 120) + '...',
+              tag: home.level || 'Central',
+              status: 'Available',
+              statusColor: '#10B981'
+            } : null,
+            migrated: curr ? {
+              ...curr,
+              name: curr.scheme_name || 'Unnamed Scheme',
+              desc: (curr.details || '').substring(0, 120) + '...',
+              tag: curr.level || 'Central',
+              status: 'New',
+              statusColor: '#3B82F6'
+            } : null
+          });
+        }
 
-        setSchemes(transformed.length > 0 ? transformed : mockData.rows);
+        setSchemes(paired);
       } catch (err) {
         console.error("Error fetching schemes:", err);
-        setSchemes(mockData.rows);
+        // Show a message but don't crash
+        setSchemes([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchRealData();
-  }, [userData]);
+  }, [userData, selectedCategory]);
 
   // Auto-filter logic based on user profile
   useEffect(() => {
@@ -77,9 +99,10 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
   }, [userData]);
 
   const filteredRows = schemes.filter(row => {
-    const matchesCategory = selectedCategory === 'All' || row.category.includes(selectedCategory);
-    const matchesSearch = row.current?.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          row.migrated?.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || (row.category || '').includes(selectedCategory);
+    const matchesSearch = !searchQuery || 
+                          (row.current?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (row.migrated?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -171,7 +194,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
           <div style={styles.sidebarSection}>
             <h3 style={styles.sidebarTitle}><Filter size={18} /> Categories</h3>
             <div style={styles.filterList}>
-              {['All', ...mockData.categories].map(cat => (
+              {['All', ...Array.from(new Set(schemes.map(r => r.category).filter(Boolean)))].map(cat => (
                 <div
                   key={cat}
                   style={{
@@ -188,7 +211,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
                   <span style={{ flex: 1 }}>{cat}</span>
                   {cat !== 'All' && (
                     <span style={styles.countBadge}>
-                      {schemes.filter(r => r.category.includes(cat)).length}
+                      {schemes.filter(r => (r.category || '').includes(cat)).length}
                     </span>
                   )}
                 </div>
@@ -214,7 +237,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
           <div style={styles.summaryBar}>
             <div style={styles.portabilityScore}>
               <div style={styles.scoreRing}>
-                <span style={styles.scoreVal}>85%</span>
+                <span style={styles.scoreVal}>{schemes.length > 0 ? Math.round((schemes.filter(r => r.current && r.migrated).length / schemes.length) * 100) : 0}%</span>
               </div>
               <div>
                 <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Welfare Match</div>
@@ -223,16 +246,16 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
             </div>
             <div style={styles.summaryStats}>
               <div style={styles.statBox}>
-                <span style={{ color: '#10B981', fontSize: '1.2rem', fontWeight: 'bold' }}>3</span>
-                <span>Continuing</span>
+                <span style={{ color: '#10B981', fontSize: '1.2rem', fontWeight: 'bold' }}>{schemes.filter(r => r.current && r.migrated).length}</span>
+                <span>Matched</span>
               </div>
               <div style={styles.statBox}>
-                <span style={{ color: '#3B82F6', fontSize: '1.2rem', fontWeight: 'bold' }}>2</span>
-                <span>New Available</span>
+                <span style={{ color: '#3B82F6', fontSize: '1.2rem', fontWeight: 'bold' }}>{schemes.filter(r => r.current).length}</span>
+                <span>Home State</span>
               </div>
               <div style={styles.statBox}>
-                <span style={{ color: '#F59E0B', fontSize: '1.2rem', fontWeight: 'bold' }}>1</span>
-                <span>Needs Action</span>
+                <span style={{ color: '#F59E0B', fontSize: '1.2rem', fontWeight: 'bold' }}>{schemes.filter(r => r.migrated).length}</span>
+                <span>Current State</span>
               </div>
             </div>
           </div>
@@ -308,6 +331,9 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
           <DetailModal scheme={selectedScheme} onClose={() => setSelectedScheme(null)} />
         )}
       </AnimatePresence>
+
+      {/* 🤖 AI CHATBOT */}
+      <AIChatbot userData={userData} schemes={filteredRows} selectedCategory={selectedCategory} />
     </div>
   );
 };
@@ -356,23 +382,19 @@ const DetailModal = ({ scheme, onClose }) => (
       </div>
       <div style={styles.modalBody}>
         <div style={styles.modalSection}>
-          <h4 style={styles.sectionHeading}>Current Status</h4>
-          <span style={{ ...styles.statusBadge, background: scheme.statusColor }}>{scheme.status}</span>
+          <h4 style={styles.sectionHeading}>About the Scheme</h4>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{scheme.details}</p>
         </div>
         <div style={styles.modalSection}>
-          <h4 style={styles.sectionHeading}>Application Roadmap</h4>
-          <ul style={styles.roadmap}>
-            <li>1. Update residence proof at local ward office (2 days)</li>
-            <li>2. Link Aadhaar with new mobile number (Instant)</li>
-            <li>3. Submit online form via State Portal (15 mins)</li>
-          </ul>
+          <h4 style={styles.sectionHeading}>Eligibility Criteria</h4>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{scheme.eligibility}</p>
         </div>
         <div style={styles.modalSection}>
           <h4 style={styles.sectionHeading}>Required Documents</h4>
           <div style={styles.tags}>
-            <span style={styles.tag}>Aadhaar Card</span>
-            <span style={styles.tag}>Ration Card</span>
-            <span style={styles.tag}>Income Certificate</span>
+            {scheme.documents?.split(',').map(doc => (
+              <span key={doc} style={styles.tag}>{doc.trim()}</span>
+            )) || <span style={styles.tag}>See details for documents</span>}
           </div>
         </div>
       </div>

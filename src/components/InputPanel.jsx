@@ -97,30 +97,43 @@ const InputPanel = ({ onComplete, onHome }) => {
     switch (currentStep) {
       case 1:
         return (
-          <div style={styles.optionGrid}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Home State</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <div style={{ background: 'rgba(34, 211, 238, 0.1)', padding: '0.6rem', borderRadius: '10px', color: 'var(--accent-primary)' }}>
+                  <Home size={18} />
+                </div>
+                <label style={{ ...styles.label, fontSize: '1.1rem', color: '#fff', fontWeight: '600' }}>Home State</label>
+              </div>
               <select 
+                className="premium-select"
                 style={styles.select}
                 value={formData.homeState}
                 onChange={(e) => setFormData({ ...formData, homeState: e.target.value })}
               >
-                <option value="">Select State</option>
-                {states.map(s => <option key={s} value={s}>{s}</option>)}
+                <option value="" style={{ background: '#0F172A', color: '#fff' }}>Select your origin state</option>
+                {states.map(s => <option key={s} value={s} style={{ background: '#0F172A', color: '#fff' }}>{s}</option>)}
               </select>
             </div>
+            
             <div style={styles.inputGroup}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label style={styles.label}>Current State</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                  <div style={{ background: 'rgba(34, 197, 94, 0.1)', padding: '0.6rem', borderRadius: '10px', color: '#22C55E' }}>
+                    <MapPin size={18} />
+                  </div>
+                  <label style={{ ...styles.label, fontSize: '1.1rem', color: '#fff', fontWeight: '600' }}>Current State</label>
+                </div>
                 {isDetecting && <span style={styles.detecting}><MapPin size={10} className="animate-pulse" /> Detecting...</span>}
               </div>
               <select 
+                className="premium-select"
                 style={styles.select}
                 value={formData.currentState}
                 onChange={(e) => setFormData({ ...formData, currentState: e.target.value })}
               >
-                <option value="">Select State</option>
-                {states.map(s => <option key={s} value={s}>{s}</option>)}
+                <option value="" style={{ background: '#0F172A', color: '#fff' }}>Select where you are now</option>
+                {states.map(s => <option key={s} value={s} style={{ background: '#0F172A', color: '#fff' }}>{s}</option>)}
               </select>
             </div>
           </div>
@@ -563,23 +576,26 @@ const styles = {
   },
   label: {
     color: 'var(--text-secondary)',
-    fontSize: '0.9rem',
+    fontSize: '0.95rem',
+    fontWeight: '500',
   },
   select: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    padding: '1rem',
+    background: 'var(--bg-secondary)',
+    border: '1px solid rgba(34, 211, 238, 0.3)',
+    padding: '1.2rem',
     color: 'var(--text-primary)',
     borderRadius: '12px',
     outline: 'none',
-    cursor: 'pointer',
     fontSize: '1rem',
-    width: '100%',
+    cursor: 'pointer',
     appearance: 'none',
     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2322D3EE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'right 1rem center',
     backgroundSize: '1.2rem',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+    width: '100%',
   },
   input: {
     background: 'var(--bg-primary)',

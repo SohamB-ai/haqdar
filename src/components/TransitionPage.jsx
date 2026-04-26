@@ -185,7 +185,7 @@ function ZoomParallax({ images }) {
 }
 
 // ── TransitionPage ───────────────────────────────────────────────────────────
-const TransitionPage = ({ onHome, onNavigate }) => {
+const TransitionPage = ({ onHome, onNavigate, userData }) => {
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [showNavbar, setShowNavbar] = useState(false);
   const dashboardRef = useRef(null);
@@ -288,7 +288,7 @@ const TransitionPage = ({ onHome, onNavigate }) => {
 
       {/* ── Dashboard ──────────────────────────────────────────── */}
       <div ref={dashboardRef}>
-        <Dashboard onHome={onHome} />
+        <Dashboard onHome={onHome} userData={userData} />
       </div>
     </div>
   );

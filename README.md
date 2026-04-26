@@ -1,33 +1,51 @@
-# HaqDaar (Team Neon) 🌟
+<div align="center">
+  <h1>🌟 HaqDaar (Team Neon)</h1>
+  <p><i>Empowering citizens with AI-driven discovery and access to government welfare schemes.</i></p>
+</div>
 
-HaqDaar is a state-of-the-art, AI-powered platform designed to seamlessly connect citizens, especially migrant workers, with government welfare schemes. By leveraging artificial intelligence and data from over 57,000+ schemes, HaqDaar personalizes the discovery, eligibility checking, and application process.
+<br />
 
-![HaqDaar Dashboard Overview](https://via.placeholder.com/1000x500.png?text=HaqDaar+Platform)
+![HaqDaar Dashboard Overview](https://via.placeholder.com/1000x400.png?text=HaqDaar+Platform)
+
+## ⚠️ The Problem
+
+Millions of citizens—particularly migrant workers, laborers, and marginalized communities—are entirely unaware of the government welfare schemes designed specifically to support them. Even when they are aware, several massive hurdles prevent them from actually claiming their benefits:
+1. **Bureaucratic Jargon:** Scheme documentation is often complex, long, and difficult to comprehend.
+2. **Language Barriers:** Information is rarely available in local, native languages.
+3. **Complex Eligibility:** Figuring out if you qualify based on age, income, gender, and occupation is an overwhelming manual process.
+4. **Migration Loss:** When migrant workers move from their Home State to a Current State for work, they often lose track of which benefits are "portable" and which are lost.
+
+## 💡 The Solution
+
+**HaqDaar** bridges this massive information gap. We aggregate over **57,000+ government schemes** into a single, highly intuitive platform. By leveraging cutting-edge Artificial Intelligence (Google Gemini), HaqDaar automatically cross-references a user's unique demographic profile with complex scheme rules to instantly determine eligibility. It breaks down bureaucratic barriers by providing simple, native-language guidance on exactly how to apply.
+
+---
 
 ## 🚀 Key Features
 
-- **AI Eligibility Matcher**: Uses Google Gemini to analyze user profiles (age, income, occupation, gender) and generates a 0-100% eligibility score with a personalized explanation for any given scheme.
-- **Interactive AI Roadmaps**: Automatically generates step-by-step, actionable application guides for schemes based on complex government documentation.
+- **AI Eligibility Matcher**: Uses Google Gemini to analyze user profiles (age, income, occupation, gender) and generates a `0-100%` eligibility score with a personalized, one-sentence explanation for any given scheme.
+- **Interactive AI Roadmaps**: Automatically digests complex government documentation to generate step-by-step, actionable application guides for the common citizen.
 - **Multilingual Support**: AI insights, match reasoning, and roadmaps are dynamically translated into **English, Hindi, and Marathi**.
-- **Migrant Portability Check**: Compares schemes between a user's Home State and Current State to ensure benefits aren't lost during migration.
+- **Migrant Portability Check**: Intelligently compares schemes between a user's Home State and Current State to ensure critical benefits (like rations or health insurance) aren't lost during migration.
 - **Category Filtering**: A robust, accurate classification system to instantly filter schemes by sectors like Agriculture, Education, Women & Child, and more.
 - **Personalized Bookmarks**: Securely save and track schemes across sessions using Clerk Authentication.
 
 ## 🛠️ Technology Stack
 
 **Frontend:**
-- React (Vite)
-- TailwindCSS (Styling)
-- Framer Motion (Micro-animations & transitions)
-- React i18next (Internationalization)
-- Clerk (User Authentication)
-- Axios
+- **React (Vite):** Blazing fast rendering.
+- **TailwindCSS:** Sleek, responsive, dark-mode styling.
+- **Framer Motion:** High-fidelity micro-animations & transitions.
+- **React i18next:** Seamless Internationalization.
+- **Clerk:** Secure User Authentication.
 
 **Backend:**
-- Python (Flask)
-- Google GenAI SDK (Gemini-2.0-Flash)
-- Pandas (In-memory Data Processing)
-- Gunicorn (Production deployment)
+- **Python (Flask):** Robust API routing.
+- **Google GenAI SDK (Gemini-2.0-Flash):** Powers the core semantic matching and chatbot features.
+- **Pandas:** Lightning-fast, in-memory data processing for the 57k+ dataset.
+- **Gunicorn:** Production-ready WSGI server.
+
+---
 
 ## 💻 Getting Started
 
@@ -52,7 +70,8 @@ python app.py
 
 ### 2. Setup Frontend
 ```bash
-# From the root directory
+# Return to the root directory
+cd ..
 npm install
 
 # Create a .env.local file with your keys:

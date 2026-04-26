@@ -193,9 +193,9 @@ const Dashboard = ({ userData, googleUser, getToken, onLogout, onHome }) => {
         </div>
       </header>
 
-      <div style={styles.mainContainer} className="responsive-dashboard" className="responsive-dashboard">
+      <div style={styles.mainContainer} className="responsive-dashboard">
         {/* 📂 LEFT SIDEBAR */}
-        <aside style={styles.sidebar} className="responsive-sidebar" className="responsive-sidebar">
+        <aside style={styles.sidebar} className="responsive-sidebar">
           <div style={styles.sidebarSection}>
             <h3 style={styles.sidebarTitle}><Filter size={18} /> Categories</h3>
             <div style={styles.filterList}>
@@ -238,7 +238,7 @@ const Dashboard = ({ userData, googleUser, getToken, onLogout, onHome }) => {
         </aside>
 
         {/* ⚖️ MAIN COMPARISON AREA */}
-        <main style={styles.content} className="responsive-content" className="responsive-content">
+        <main style={styles.content} className="responsive-content">
           <div style={styles.gridHeader}>
             <div style={styles.gridHeaderLeft}>{userData?.homeState || 'Home State'}</div>
             <div style={styles.divider} />
@@ -263,7 +263,7 @@ const Dashboard = ({ userData, googleUser, getToken, onLogout, onHome }) => {
               </div>
             ) : (
               filteredRows.map((row, index) => (
-                <div key={index} style={styles.comparisonRow} className="responsive-comparison" className="responsive-comparison">
+                <div key={index} style={styles.comparisonRow} className="responsive-comparison">
                   <div style={styles.rowSide}>
                     {row.current && (
                       <SchemeCard 
@@ -380,7 +380,7 @@ const DetailModal = ({ scheme, onClose, getToken, userData, isSaved, onBookmark 
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={styles.modalOverlay} onClick={onClose}>
-      <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={styles.modalContent} className="dashboard-modal-content" className="dashboard-modal-content" onClick={e => e.stopPropagation()}>
+      <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} style={styles.modalContent} className="dashboard-modal-content" onClick={e => e.stopPropagation()}>
         <div style={styles.modalHeader}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <span style={styles.categoryTag}>{scheme.schemeCategory}</span>
@@ -399,7 +399,7 @@ const DetailModal = ({ scheme, onClose, getToken, userData, isSaved, onBookmark 
             </div>
           </div>
 
-          <div style={styles.modalGrid} className="dashboard-modal-grid" className="dashboard-modal-grid">
+          <div style={styles.modalGrid} className="dashboard-modal-grid">
              <div style={styles.modalSection}>
                 <h4 style={styles.sectionHeading}><Sparkles size={16} style={{ marginRight: '0.5rem' }} /> AI Roadmap</h4>
                 <div style={styles.roadmapStepper}>

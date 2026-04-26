@@ -50,6 +50,17 @@ def parse_income_value(raw_income):
     cleaned = ''.join(ch for ch in str(raw_income) if ch.isdigit() or ch == '.')
     return float(cleaned) if cleaned else 0.0
 
+def clean_json_response(text):
+    """Remove markdown formatting from AI JSON response."""
+    text = text.strip()
+    if text.startswith('```'):
+        # Remove starting ```json or ```
+        text = text.split('\n', 1)[1]
+        # Remove ending ```
+        if text.endswith('```'):
+            text = text.rsplit('```', 1)[0]
+    return text.strip()
+
 def require_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -450,11 +461,7 @@ If a field is not visible, set it to null."""
             {"mime_type": mime_type, "data": image_data}
         ])
 
-        response_text = response.text.strip()
-        if response_text.startswith('```'):
-            response_text = response_text.split('\n', 1)[1]
-            response_text = response_text.rsplit('```', 1)[0]
-
+        response_text = clean_json_response(response.text)
         extracted = json_module.loads(response_text)
         return jsonify({"success": True, "extracted_data": extracted})
 
@@ -479,6 +486,7 @@ If a field is not visible, set it to null."""
 def extract_roadmap():
     data = request.json
     scheme_text = data.get('application', '')
+    lang = data.get('language', 'English')
 
     if not scheme_text or len(scheme_text) < 20:
         return jsonify({"roadmap": ["1. Visit the nearest government office", "2. Submit application form", "3. Collect acknowledgement receipt"]})
@@ -488,14 +496,10 @@ def extract_roadmap():
 
     try:
         model = genai.GenerativeModel('gemini-flash-latest')
-        prompt = f"Convert this government scheme application process into a detailed 4-step interactive roadmap for a common citizen. Return ONLY a JSON list of strings. Be very concise. Raw text: {scheme_text}"
+        prompt = f"Convert this government scheme application process into a detailed 4-step interactive roadmap for a common citizen. Return ONLY a JSON list of strings. Be very concise. Respond in {lang}. Raw text: {scheme_text}"
         response = model.generate_content(prompt)
         
-        # Parse JSON list from response
-        text = response.text.strip()
-        if text.startswith('```'):
-            text = text.split('\n', 1)[1].rsplit('```', 1)[0].strip()
-        
+        text = clean_json_response(response.text)
         steps = json_module.loads(text)
         return jsonify({"roadmap": steps[:5]})
     except Exception as e:
@@ -510,6 +514,7 @@ def calculate_match():
     data = request.json
     user_profile = data.get('profile', {})
     scheme_details = data.get('scheme', {})
+    lang = data.get('language', 'English')
 
     if not user_profile or not scheme_details:
         return jsonify({"score": 50, "reason": "Missing data"})
@@ -517,16 +522,12 @@ def calculate_match():
     try:
         model = genai.GenerativeModel('gemini-flash-latest')
         prompt = f"""Compare this user profile with the government scheme eligibility.
-Return ONLY valid JSON: {{"score": number, "reason": "one short sentence explanation"}}
+Return ONLY valid JSON: {{"score": number, "reason": "one short sentence explanation in {lang}"}}
 User Profile: {json_module.dumps(user_profile)}
 Scheme Eligibility: {scheme_details.get('eligibility', '')}
 Score 0 if clearly ineligible, 100 if perfectly matched."""
         
-        response = model.generate_content(prompt)
-        text = response.text.strip()
-        if text.startswith('```'):
-            text = text.split('\n', 1)[1].rsplit('```', 1)[0].strip()
-            
+        text = clean_json_response(response.text)
         result = json_module.loads(text)
         return jsonify(result)
     except Exception as e:

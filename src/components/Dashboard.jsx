@@ -446,6 +446,9 @@ const SchemeCard = ({ scheme, highlight, onOpen, isSaved, onBookmark }) => (
 );
 
 const DetailModal = ({ scheme, onClose, getToken, userData, isSaved, onBookmark }) => {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language === 'hi' ? 'Hindi' : (i18n.language === 'mr' ? 'Marathi' : 'English');
+  
   const [roadmap, setRoadmap] = useState([]);
   const [matchInfo, setMatchInfo] = useState({ score: 0, reason: '' });
   const [loading, setLoading] = useState(true);
@@ -460,11 +463,13 @@ const DetailModal = ({ scheme, onClose, getToken, userData, isSaved, onBookmark 
         // Parallel fetch for Roadmap and Match Score
         const [roadmapRes, matchRes] = await Promise.all([
           axios.post(`${apiUrl}/extract-roadmap`, {
-            application: scheme.application || scheme.details
+            application: scheme.details,
+            language: currentLang
           }, { headers: { Authorization: `Bearer ${token || 'dev-token'}` } }),
           axios.post(`${apiUrl}/calculate-match`, {
             profile: userData,
-            scheme: scheme
+            scheme: scheme,
+            language: currentLang
           }, { headers: { Authorization: `Bearer ${token || 'dev-token'}` } })
         ]);
 
@@ -483,7 +488,7 @@ const DetailModal = ({ scheme, onClose, getToken, userData, isSaved, onBookmark 
       }
     };
     fetchAIInsights();
-  }, [getToken, scheme, userData]);
+  }, [getToken, scheme, userData, currentLang]);
 
   const docs = scheme.documents ? scheme.documents.split(' ').filter(d => d.length > 2) : ['Aadhaar Card', 'Income Certificate'];
 
@@ -1014,8 +1019,9 @@ const styles = {
   },
   modalGrid: {
     display: 'grid',
-    gridTemplateColumns: '1.5fr 1fr',
+    gridTemplateColumns: typeof window !== 'undefined' && window.innerWidth < 768 ? '1fr' : '1.5fr 1fr',
     gap: '2rem',
+    marginTop: '1.5rem',
   },
   roadmapStepper: {
     display: 'flex',

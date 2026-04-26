@@ -26,30 +26,37 @@ def generate_embeddings():
     errors = 0
 
     for scheme in cursor:
-        try:
-            text = f"Name: {scheme.get('scheme_name','')}. Category: {scheme.get('schemeCategory','')}. Details: {scheme.get('details','')}. Eligibility: {scheme.get('eligibility','')}"
+        retries = 3
+        while retries > 0:
+            try:
+                text = f"Name: {scheme.get('scheme_name','')}. Category: {scheme.get('schemeCategory','')}. Details: {scheme.get('details','')}. Eligibility: {scheme.get('eligibility','')}"
 
-            result = genai.embed_content(
-                model="models/gemini-embedding-001",
-                content=text,
-                task_type="retrieval_document",
-                title=scheme.get("scheme_name", "")
-            )
+                result = genai.embed_content(
+                    model="models/gemini-embedding-001",
+                    content=text,
+                    task_type="retrieval_document",
+                    title=scheme.get("scheme_name", "")
+                )
 
-            schemes_col.update_one(
-                {"_id": scheme["_id"]},
-                {"$set": {"embedding": result["embedding"]}}
-            )
-            done += 1
+                schemes_col.update_one(
+                    {"_id": scheme["_id"]},
+                    {"$set": {"embedding": result["embedding"]}}
+                )
+                done += 1
 
-            if done % 50 == 0:
-                print(f"  Progress: {done}/{total} embedded...")
-                time.sleep(1)  # Rate limit protection
-
-        except Exception as e:
-            errors += 1
-            print(f"  Error on scheme {scheme.get('scheme_name','?')}: {e}")
-            time.sleep(2)
+                if done % 50 == 0:
+                    print(f"  Progress: {done}/{total} embedded...")
+                
+                time.sleep(0.5)  # Steady pace
+                break # Success
+            except Exception as e:
+                retries -= 1
+                if retries == 0:
+                    errors += 1
+                    print(f"  Error on scheme {scheme.get('scheme_name','?')}: {e}")
+                else:
+                    print(f"  Transient error on {scheme.get('scheme_name','?')}, retrying...")
+                    time.sleep(2)
 
     print(f"\n✅ Done! Embedded: {done}, Errors: {errors}")
 

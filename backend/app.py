@@ -23,7 +23,9 @@ CORS(app)
 
 # Configure Gemini using the new google.genai SDK
 api_key = os.getenv("GEMINI_API_KEY")
+chatbot_api_key = os.getenv("GEMINI_CHATBOT_API_KEY")
 genai_client = None
+chat_genai_client = None
 
 if api_key:
     try:
@@ -43,6 +45,14 @@ if api_key:
         print(f"[ERROR] Failed to configure Gemini: {e}")
 else:
     print("[WARN] No GEMINI_API_KEY found in environment")
+
+if chatbot_api_key:
+    try:
+        from google import genai
+        chat_genai_client = genai.Client(api_key=chatbot_api_key)
+        print("[OK] Dedicated Chatbot Gemini API configured")
+    except Exception as e:
+        print(f"[ERROR] Failed to configure Chatbot Gemini: {e}")
 
 # Load dataset
 CSV_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw_schemes.csv')
@@ -366,12 +376,13 @@ def chat_with_ai():
     messages = data.get('messages', [])
 
     try:
-        if not genai_client:
+        client_to_use = chat_genai_client or genai_client
+        if not client_to_use:
              return jsonify({"reply": "AI Chat is currently unavailable."})
 
         # Simple conversion of messages to Gemini format
         last_msg = messages[-1]['content']
-        response = genai_client.models.generate_content(
+        response = client_to_use.models.generate_content(
             model='gemini-2.0-flash',
             contents=last_msg,
             config={'system_instruction': "You are 'HaqDaar AI', a helpful assistant. Use simple, empathetic language. Help users understand government schemes."}

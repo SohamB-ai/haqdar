@@ -120,7 +120,7 @@ const ChatBot = ({ authEnabled, getToken }) => {
                     <Bot size={14} />
                   </div>
                   <div style={{...styles.message, ...styles.botMessage}}>
-                    <Loader2 size={16} className="animate-spin" />
+                    <span style={{ fontStyle: 'italic', opacity: 0.7 }}>typing...</span>
                   </div>
                 </div>
               )}

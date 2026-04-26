@@ -252,8 +252,14 @@ const Dashboard = ({ userData, googleUser, getToken, onLogout, onHome }) => {
                 <p>Matching your profile with schemes...</p>
               </div>
             ) : filteredRows.length === 0 ? (
-              <div style={styles.emptyState}>
-                <p>No schemes found.</p>
+              <div style={{ ...styles.emptyState, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', opacity: 0.8 }}>
+                <Bookmark size={48} strokeWidth={1} color="var(--accent-primary)" />
+                <h3 style={{ fontSize: '1.2rem', margin: 0 }}>No schemes found</h3>
+                <p style={{ maxWidth: '400px', margin: '0 auto', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                  {showSavedOnly 
+                    ? "You haven't bookmarked any schemes yet. Browse and save schemes to easily track them here." 
+                    : "We couldn't find any schemes matching your criteria. Try adjusting your filters or search."}
+                </p>
               </div>
             ) : (
               filteredRows.map((row, index) => (
@@ -306,6 +312,7 @@ const Dashboard = ({ userData, googleUser, getToken, onLogout, onHome }) => {
 
 const SchemeCard = ({ scheme, highlight, onOpen, isSaved, onBookmark }) => (
   <motion.div
+    className="scheme-card"
     whileHover={{ y: -5 }}
     style={{
       ...styles.schemeCard,

@@ -10,6 +10,7 @@ import Dashboard from './components/Dashboard';
 import TransitionPage from './components/TransitionPage';
 import ScrollCheckpoints from './components/ScrollCheckpoints';
 import { useUser, useAuth } from '@clerk/react';
+import ChatBot from './components/ChatBot';
 
 function App() {
   const [view, setView] = useState('landing');
@@ -90,7 +91,15 @@ function App() {
       case 'transition':
         return <TransitionPage onHome={() => setView('landing')} onNavigate={handleNavigate} />;
       case 'dashboard':
-        return <Dashboard onHome={() => setView('landing')} userData={userData} />;
+        return <Dashboard 
+          onHome={() => setView('landing')} 
+          userData={userData} 
+          googleUser={user} 
+          onLogout={() => {
+            signOut();
+            setView('landing');
+          }}
+        />;
       default:
         return <div>404 Page Not Found</div>;
     }
@@ -100,6 +109,7 @@ function App() {
     <div style={styles.app}>
       {view !== 'input' && view !== 'transition' && <Navbar onNavigate={handleNavigate} currentView={view} isDashboard={view === 'dashboard'} />}
       {renderView()}
+      <ChatBot />
     </div>
   );
 }

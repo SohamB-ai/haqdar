@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Filter, ChevronRight, X, Download, Share2, Bookmark, User, LogOut, Settings, Heart, Search, Home } from 'lucide-react';
-import { comparisonData as mockData } from './dashboardData';
 import axios from 'axios';
 
 const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
@@ -28,26 +27,35 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
         
         // Transform backend data to match the UI structure
         // The backend returns { portable_schemes: [], new_state_schemes: [] }
-        const transformed = res.data.portable_schemes.map((ps, idx) => ({
-          id: ps.id,
-          category: ps.schemeCategory.split(',')[0],
-          status: 'Available',
-          current: {
-            name: ps.scheme_name,
-            desc: ps.details.substring(0, 80) + '...',
-            id: ps.id
-          },
-          migrated: {
-            name: ps.scheme_name, // Portable means same scheme
-            desc: ps.details.substring(0, 80) + '...',
-            id: ps.id
-          }
-        }));
+        const transformed = res.data.portable_schemes.map((ps, idx) => {
+          const category = ps.schemeCategory.split(',')[0];
+          return {
+            id: ps.id,
+            category: category,
+            status: 'Available',
+            current: {
+              ...ps,
+              name: ps.scheme_name,
+              desc: ps.details.substring(0, 100) + '...',
+              tag: category,
+              status: 'Active',
+              statusColor: '#10B981'
+            },
+            migrated: {
+              ...ps,
+              name: ps.scheme_name,
+              desc: ps.details.substring(0, 100) + '...',
+              tag: category,
+              status: 'Portable',
+              statusColor: '#3B82F6'
+            }
+          };
+        });
 
-        setSchemes(transformed.length > 0 ? transformed : mockData.rows);
+        setSchemes(transformed);
       } catch (err) {
         console.error("Error fetching schemes:", err);
-        setSchemes(mockData.rows);
+        setSchemes([]);
       } finally {
         setLoading(false);
       }
@@ -145,18 +153,25 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
                   style={styles.profileMenu}
                 >
                   <div style={styles.menuHeader}>
-                    <div style={{ fontWeight: '700' }}>{googleUser?.name || 'User'}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{googleUser?.email}</div>
+                    <div style={{ fontWeight: '700' }}>{googleUser?.name || 'Welfare User'}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{googleUser?.email || 'user@haqdar.in'}</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', marginTop: '0.4rem' }}>
+                      {userData?.occupation} • {userData?.currentState}
+                    </div>
                   </div>
                   <div style={styles.menuDivider} />
-                  <div style={styles.menuItem}>My Saved Schemes</div>
-                  <div style={styles.menuItem}>Profile Settings</div>
+                  <div style={styles.menuItem} onClick={() => alert("My Saved Schemes feature coming soon!")}>
+                    <Bookmark size={14} style={{ marginRight: '0.5rem' }} /> My Saved Schemes
+                  </div>
+                  <div style={styles.menuItem} onClick={() => alert("Profile Settings feature coming soon!")}>
+                    <Settings size={14} style={{ marginRight: '0.5rem' }} /> Profile Settings
+                  </div>
                   <div style={styles.menuDivider} />
                   <div 
                     style={{ ...styles.menuItem, color: '#EF4444' }}
                     onClick={onLogout}
                   >
-                    Logout
+                    <LogOut size={14} style={{ marginRight: '0.5rem' }} /> Logout
                   </div>
                 </motion.div>
               )}
@@ -171,7 +186,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
           <div style={styles.sidebarSection}>
             <h3 style={styles.sidebarTitle}><Filter size={18} /> Categories</h3>
             <div style={styles.filterList}>
-              {['All', ...mockData.categories].map(cat => (
+              {['All', 'Social welfare & Empowerment', 'Education & Learning', 'Health & Wellness', 'Agriculture', 'Housing & Shelter', 'Skills & Employment', 'Business & Entrepreneurship', 'Utility & Sanitation', 'Transport & Infrastructure', 'Women and Child', 'Banking'].map(cat => (
                 <div
                   key={cat}
                   style={{
@@ -214,7 +229,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
           <div style={styles.summaryBar}>
             <div style={styles.portabilityScore}>
               <div style={styles.scoreRing}>
-                <span style={styles.scoreVal}>85%</span>
+                <span style={styles.scoreVal}>{schemes.length > 0 ? '92%' : '0%'}</span>
               </div>
               <div>
                 <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Welfare Match</div>
@@ -223,16 +238,22 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
             </div>
             <div style={styles.summaryStats}>
               <div style={styles.statBox}>
-                <span style={{ color: '#10B981', fontSize: '1.2rem', fontWeight: 'bold' }}>3</span>
-                <span>Continuing</span>
+                <span style={{ color: '#10B981', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  {schemes.length}
+                </span>
+                <span>Active Matches</span>
               </div>
               <div style={styles.statBox}>
-                <span style={{ color: '#3B82F6', fontSize: '1.2rem', fontWeight: 'bold' }}>2</span>
-                <span>New Available</span>
+                <span style={{ color: '#3B82F6', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  {schemes.filter(s => s.status === 'Available').length}
+                </span>
+                <span>Ready to Apply</span>
               </div>
               <div style={styles.statBox}>
-                <span style={{ color: '#F59E0B', fontSize: '1.2rem', fontWeight: 'bold' }}>1</span>
-                <span>Needs Action</span>
+                <span style={{ color: '#F59E0B', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  {schemes.length > 0 ? 1 : 0}
+                </span>
+                <span>Pending Action</span>
               </div>
             </div>
           </div>
@@ -335,58 +356,98 @@ const SchemeCard = ({ scheme, onOpen, highlight, faded }) => (
   </motion.div>
 );
 
-const DetailModal = ({ scheme, onClose }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    style={styles.modalOverlay}
-    onClick={onClose}
-  >
+const DetailModal = ({ scheme, onClose }) => {
+  const [roadmap, setRoadmap] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRoadmap = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
+        const res = await axios.post(`${apiUrl}/extract-roadmap`, {
+          application: scheme.application || scheme.details
+        });
+        setRoadmap(res.data.roadmap);
+      } catch (err) {
+        console.error("Roadmap fetch failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoadmap();
+  }, [scheme]);
+
+  const docs = scheme.documents ? scheme.documents.split(' ').filter(d => d.length > 2) : ['Aadhaar Card', 'Income Certificate'];
+
+  return (
     <motion.div
-      initial={{ scale: 0.9, y: 20 }}
-      animate={{ scale: 1, y: 0 }}
-      exit={{ scale: 0.9, y: 20 }}
-      style={styles.modalContent}
-      onClick={e => e.stopPropagation()}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={styles.modalOverlay}
+      onClick={onClose}
     >
-      <div style={styles.modalHeader}>
-        <h2 style={styles.modalTitle}>{scheme.name}</h2>
-        <X onClick={onClose} style={{ cursor: 'pointer' }} />
-      </div>
-      <div style={styles.modalBody}>
-        <div style={styles.modalSection}>
-          <h4 style={styles.sectionHeading}>Current Status</h4>
-          <span style={{ ...styles.statusBadge, background: scheme.statusColor }}>{scheme.status}</span>
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        style={styles.modalContent}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={styles.modalHeader}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <span style={styles.categoryTag}>{scheme.category || scheme.schemeCategory}</span>
+            <h2 style={styles.modalTitle}>{scheme.name || scheme.scheme_name}</h2>
+          </div>
+          <X onClick={onClose} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }} />
         </div>
-        <div style={styles.modalSection}>
-          <h4 style={styles.sectionHeading}>Application Roadmap</h4>
-          <ul style={styles.roadmap}>
-            <li>1. Update residence proof at local ward office (2 days)</li>
-            <li>2. Link Aadhaar with new mobile number (Instant)</li>
-            <li>3. Submit online form via State Portal (15 mins)</li>
-          </ul>
-        </div>
-        <div style={styles.modalSection}>
-          <h4 style={styles.sectionHeading}>Required Documents</h4>
-          <div style={styles.tags}>
-            <span style={styles.tag}>Aadhaar Card</span>
-            <span style={styles.tag}>Ration Card</span>
-            <span style={styles.tag}>Income Certificate</span>
+        <div style={styles.modalBody}>
+          <div style={styles.modalSection}>
+            <h4 style={styles.sectionHeading}>AI Simplified Roadmap</h4>
+            {loading ? (
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Analyzing application process...</div>
+            ) : (
+              <ul style={styles.roadmap}>
+                {roadmap.map((step, i) => (
+                  <motion.li 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    key={i}
+                  >
+                    {step}
+                  </motion.li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div style={styles.modalSection}>
+            <h4 style={styles.sectionHeading}>Required Documents</h4>
+            <div style={styles.tags}>
+              {docs.map(doc => (
+                <span key={doc} style={styles.tag}>{doc}</span>
+              ))}
+            </div>
+          </div>
+          <div style={styles.modalSection}>
+            <h4 style={styles.sectionHeading}>Benefits</h4>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+              {scheme.benefits || "Refer to official documentation for detailed benefit breakdown."}
+            </p>
           </div>
         </div>
-      </div>
-      <div style={styles.modalFooter}>
-        <div style={styles.footerBtns}>
-          <button style={styles.iconBtn}><Bookmark size={18} /></button>
-          <button style={styles.iconBtn}><Share2 size={18} /></button>
-          <button style={styles.iconBtn}><Download size={18} /></button>
+        <div style={styles.modalFooter}>
+          <div style={styles.footerBtns}>
+            <button style={styles.iconBtn}><Bookmark size={18} /></button>
+            <button style={styles.iconBtn}><Share2 size={18} /></button>
+            <button style={styles.iconBtn}><Download size={18} /></button>
+          </div>
+          <button className="gold-button" onClick={onClose}>Done</button>
         </div>
-        <button className="gold-button" onClick={onClose}>Close</button>
-      </div>
+      </motion.div>
     </motion.div>
-  </motion.div>
-);
+  );
+};
 
 const styles = {
   dashboard: {
@@ -485,6 +546,9 @@ const styles = {
     borderRadius: '6px',
     fontSize: '0.9rem',
     transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
     '&:hover': {
       background: 'rgba(255, 255, 255, 0.03)',
     }

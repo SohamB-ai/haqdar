@@ -10,7 +10,7 @@ const stateImages = [
     alt: 'Taj Mahal, Uttar Pradesh',
   },
   {
-    src: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1280&h=720&fit=crop&auto=format&q=80',
+    src: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1280&h=720&fit=crop&auto=format&q=80',
     alt: 'Hawa Mahal, Rajasthan',
   },
   {
@@ -18,7 +18,7 @@ const stateImages = [
     alt: 'Backwaters, Kerala',
   },
   {
-    src: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=1280&h=720&fit=crop&auto=format&q=80',
+    src: 'https://images.unsplash.com/photo-1570160897040-30430ed22112?w=1280&h=720&fit=crop&auto=format&q=80',
     alt: 'Gateway of India, Mumbai',
   },
   {
@@ -26,12 +26,24 @@ const stateImages = [
     alt: 'Golden Temple, Punjab',
   },
   {
-    src: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1280&h=720&fit=crop&auto=format&q=80',
-    alt: 'Varanasi Ghats, Uttar Pradesh',
+    src: 'https://images.unsplash.com/photo-1590050752117-23a9d7fc20c5?w=1280&h=720&fit=crop&auto=format&q=80',
+    alt: 'Mysore Palace, Karnataka',
   },
   {
-    src: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1280&h=720&fit=crop&auto=format&q=80',
-    alt: 'India Gate, Delhi',
+    src: 'https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=1280&h=720&fit=crop&auto=format&q=80',
+    alt: 'Tea Gardens, Assam',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1548013146-72479768bbaa?w=1280&h=720&fit=crop&auto=format&q=80',
+    alt: 'Statue of Unity, Gujarat',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1627581179516-ec0f4384d56d?w=1280&h=720&fit=crop&auto=format&q=80',
+    alt: 'Meenakshi Temple, Tamil Nadu',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1626081461522-8344e27f31be?w=1280&h=720&fit=crop&auto=format&q=80',
+    alt: 'Konark Sun Temple, Odisha',
   },
 ];
 
@@ -56,6 +68,14 @@ const innerOverrides = [
   { width: '30vw', height: '25vh', top: '27.5vh', left: '-22.5vw' },
   // 6 — far-right small
   { width: '15vw', height: '15vh', top: '22.5vh', left: '25vw' },
+  // 7 — far-left
+  { width: '20vw', height: '20vh', top: '-15vh', left: '-35vw' },
+  // 8 — top-right
+  { width: '25vw', height: '30vh', top: '-35vh', left: '30vw' },
+  // 9 — far-bottom-left
+  { width: '15vw', height: '25vh', top: '35vh', left: '-35vw' },
+  // 10 — far-bottom-right
+  { width: '18vw', height: '20vh', top: '35vh', left: '35vw' },
 ];
 
 // ── ZoomParallax ─────────────────────────────────────────────────────────────
@@ -129,6 +149,32 @@ function ZoomParallax({ images }) {
                     display: 'block',
                   }}
                 />
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  padding: '1rem',
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  justifyContent: 'flex-start'
+                }}>
+                  <span style={{
+                    color: '#fff',
+                    fontSize: 'clamp(0.6rem, 1vw, 1rem)',
+                    fontWeight: '500',
+                    letterSpacing: '0.05em',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(4px)',
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '4px',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                  }}>
+                    {alt}
+                  </span>
+                </div>
               </div>
             </motion.div>
           );

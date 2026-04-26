@@ -1,16 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { statesData } from './statesData';
+import axios from 'axios';
 
 const IndiaMap = () => {
   const [activeStateIndex, setActiveStateIndex] = useState(0);
+  const [stats, setStats] = useState({});
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
+        const res = await axios.get(`${apiUrl}/state-stats`);
+        setStats(res.data);
+      } catch (err) {
+        console.error("Failed to fetch state stats:", err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveStateIndex((prev) => (prev + 1) % statesData.length);
-    }, 1500);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  const currentStateName = statesData[activeStateIndex].name;
+  const currentCount = stats[currentStateName] || stats[currentStateName.replace(' & ', ' and ')] || (activeStateIndex * 7) % 40 + 20;
 
   return (
     <div style={styles.container}>
@@ -47,9 +65,9 @@ const IndiaMap = () => {
             exit={{ opacity: 0, y: -10 }}
             style={styles.stateLabel}
           >
-            {statesData[activeStateIndex].name} 
+            {currentStateName} 
             <span style={styles.schemeCount}>
-              ({(statesData[activeStateIndex].name.length * 7) % 40 + 20} Schemes)
+              ({currentCount} Schemes Available)
             </span>
           </motion.div>
         </AnimatePresence>

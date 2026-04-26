@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react';
 import axios from 'axios';
 
-const ChatBot = () => {
+const ChatBot = ({ authEnabled, getToken }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Namaste! I am HaqDaar AI. How can I help you today with government schemes?' }
@@ -29,8 +29,11 @@ const ChatBot = () => {
 
     try {
       const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://haqdar-backend-rdno.onrender.com' : 'http://localhost:5001');
+      const token = getToken ? await getToken() : 'dev-token';
       const response = await axios.post(`${apiUrl}/chat`, {
         messages: [...messages, userMessage]
+      }, {
+        headers: { Authorization: `Bearer ${token || 'dev-token'}` }
       });
       
       const aiMessage = { role: 'assistant', content: response.data.reply };

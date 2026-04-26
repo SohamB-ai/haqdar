@@ -51,7 +51,7 @@ const FloatingPaths = ({ position }) => {
   );
 };
 
-const AuthPages = ({ type, onSwitch, onFinish }) => {
+const AuthPages = ({ type, onSwitch, onFinish, authEnabled, onSkip }) => {
   const isSignIn = type === 'signin';
 
   return (
@@ -87,17 +87,49 @@ const AuthPages = ({ type, onSwitch, onFinish }) => {
           </div>
 
           <div style={styles.clerkWrapper}>
-            {isSignIn ? (
-              <SignIn 
-                appearance={{ baseTheme: dark }} 
-                routing="hash"
-              />
-            ) : (
-              <SignUp 
-                appearance={{ baseTheme: dark }} 
-                routing="hash"
-              />
-            )}
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
+              {authEnabled ? (
+                isSignIn ? (
+                  <SignIn 
+                    appearance={{ baseTheme: dark }} 
+                    routing="hash"
+                  />
+                ) : (
+                  <SignUp 
+                    appearance={{ baseTheme: dark }} 
+                    routing="hash"
+                  />
+                )
+              ) : (
+                <div style={styles.fallbackCard}>
+                  <h2 style={styles.fallbackTitle}>Clerk is not configured yet</h2>
+                  <p style={styles.fallbackText}>
+                    You can still continue in guest mode and test the welfare discovery flow locally.
+                  </p>
+                  <button className="gold-button" onClick={() => onSwitch('input')}>
+                    Continue Without Sign In
+                  </button>
+                </div>
+              )}
+
+              {authEnabled && onSkip && (
+                <div style={styles.skipSection}>
+                  <div style={styles.divider}>
+                    <span style={styles.dividerLine}></span>
+                    <span style={styles.dividerText}>or</span>
+                    <span style={styles.dividerLine}></span>
+                  </div>
+                  <button 
+                    style={styles.skipBtn}
+                    onClick={onSkip}
+                    onMouseOver={(e) => e.target.style.color = '#38BDF8'}
+                    onMouseOut={(e) => e.target.style.color = '#94A3B8'}
+                  >
+                    Continue as Guest
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </motion.div>
@@ -206,7 +238,58 @@ const styles = {
   },
   headerArea: {
     marginBottom: '2.5rem',
-  }
+  },
+  fallbackCard: {
+    maxWidth: '340px',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    color: '#E2E8F0',
+  },
+  fallbackTitle: {
+    fontSize: '1.6rem',
+    fontWeight: '700',
+  },
+  fallbackText: {
+    color: '#94A3B8',
+    lineHeight: '1.7',
+  },
+  skipSection: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '1rem',
+  },
+  divider: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: '300px',
+    gap: '1rem',
+  },
+  dividerLine: {
+    flex: 1,
+    height: '1px',
+    background: 'rgba(255, 255, 255, 0.1)',
+  },
+  dividerText: {
+    color: '#475569',
+    fontSize: '0.8rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+  },
+  skipBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#94A3B8',
+    fontSize: '0.9rem',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    textDecoration: 'underline',
+    textUnderlineOffset: '4px',
+  },
 };
 
 export default AuthPages;

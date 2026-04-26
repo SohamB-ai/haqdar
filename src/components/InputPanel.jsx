@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Truck, Hammer, User, Briefcase, Plus, Check, MapPin, Home } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Truck, Hammer, User, Briefcase, Plus, Check, MapPin, Home, Camera } from 'lucide-react';
 import axios from 'axios';
+import DocumentScanner from './DocumentScanner';
 
 const states = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
@@ -34,6 +35,31 @@ const InputPanel = ({ onComplete, onHome }) => {
     docs: []
   });
   const [isDetecting, setIsDetecting] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+
+  const handleDocumentData = (extractedData) => {
+    const updates = {};
+    if (extractedData.name) updates.name = extractedData.name;
+    if (extractedData.gender) updates.gender = extractedData.gender;
+    if (extractedData.state) updates.homeState = extractedData.state;
+    if (extractedData.dob) {
+      // Calculate age from DOB
+      const parts = extractedData.dob.split('/');
+      if (parts.length === 3) {
+        const birthYear = parseInt(parts[2]);
+        const currentYear = new Date().getFullYear();
+        updates.age = String(currentYear - birthYear);
+      }
+    }
+    if (extractedData.document_type) {
+      const currentDocs = formData.docs || [];
+      if (!currentDocs.includes(extractedData.document_type)) {
+        updates.docs = [...currentDocs, extractedData.document_type];
+      }
+    }
+    setFormData(prev => ({ ...prev, ...updates }));
+    setShowScanner(false);
+  };
 
   useEffect(() => {
     const detectLocation = async () => {
@@ -301,7 +327,17 @@ const InputPanel = ({ onComplete, onHome }) => {
           { name: 'MNREGA Job Card', icon: '👷' }
         ];
         return (
-          <div style={styles.docGrid}>
+          <div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowScanner(true)}
+              style={styles.scanButton}
+            >
+              <Camera size={18} />
+              <span>Scan Document with AI</span>
+            </motion.button>
+            <div style={styles.docGrid}>
             {documents.map((doc) => (
               <motion.div
                 key={doc.name}
@@ -332,6 +368,15 @@ const InputPanel = ({ onComplete, onHome }) => {
                 </div>
               </motion.div>
             ))}
+            </div>
+            <AnimatePresence>
+              {showScanner && (
+                <DocumentScanner
+                  onDataExtracted={handleDocumentData}
+                  onClose={() => setShowScanner(false)}
+                />
+              )}
+            </AnimatePresence>
           </div>
         );
       }
@@ -731,6 +776,22 @@ const styles = {
     borderRadius: '12px',
     minHeight: '60px',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scanButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    width: '100%',
+    padding: '0.75rem 1rem',
+    marginBottom: '1rem',
+    background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(99, 102, 241, 0.1))',
+    border: '1px dashed rgba(34, 211, 238, 0.4)',
+    borderRadius: '12px',
+    color: 'var(--accent-primary)',
+    fontSize: '0.85rem',
+    fontWeight: '600',
+    cursor: 'pointer',
     justifyContent: 'center',
   },
   docGrid: {

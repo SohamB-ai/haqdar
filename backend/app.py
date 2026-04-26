@@ -380,12 +380,16 @@ def chat_with_ai():
         if not client_to_use:
              return jsonify({"reply": "AI Chat is currently unavailable."})
 
-        # Simple conversion of messages to Gemini format
-        last_msg = messages[-1]['content']
+        # Convert message history to Gemini format
+        gemini_history = []
+        for m in messages:
+            role = 'user' if m['role'] == 'user' else 'model'
+            gemini_history.append({'role': role, 'parts': [{'text': m['content']}]})
+        
         response = client_to_use.models.generate_content(
             model='gemini-2.0-flash',
-            contents=last_msg,
-            config={'system_instruction': "You are 'HaqDaar AI', a helpful assistant. Use simple, empathetic language. Help users understand government schemes."}
+            contents=gemini_history,
+            config={'system_instruction': "You are 'HaqDaar AI', a warm and helpful assistant. Use simple, empathetic language. Help users understand government schemes and answer their questions clearly."}
         )
         return jsonify({"reply": response.text})
     except Exception as e:

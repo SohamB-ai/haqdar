@@ -11,6 +11,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [schemes, setSchemes] = useState([]);
+  const [categoryCounts, setCategoryCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
   // Fetch real data from backend
@@ -31,7 +32,8 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
           income: userData?.income || '',
         }, { timeout: 30000 });
         
-        const { home_schemes = [], current_schemes = [] } = res.data;
+        const { home_schemes = [], current_schemes = [], category_counts = {} } = res.data;
+        setCategoryCounts(category_counts);
         
         const maxLength = Math.max(home_schemes.length, current_schemes.length);
         const paired = [];
@@ -93,7 +95,7 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
     'Banking': '🏦'
   };
 
-  const categories = ['All', ...Array.from(new Set(schemes.map(r => r.category).filter(Boolean)))];
+  const categories = ['All', ...Object.keys(categoryIcons)];
 
   return (
     <div style={styles.dashboard}>
@@ -141,9 +143,17 @@ const Dashboard = ({ userData, googleUser, onLogout, onHome }) => {
                 <div key={cat} onClick={() => setSelectedCategory(cat)} style={{
                   ...styles.filterItem,
                   background: selectedCategory === cat ? 'rgba(34, 211, 238, 0.1)' : 'transparent',
-                  color: selectedCategory === cat ? 'var(--accent-primary)' : 'var(--text-secondary)'
+                  color: selectedCategory === cat ? 'var(--accent-primary)' : 'var(--text-secondary)',
+                  justifyContent: 'space-between'
                 }}>
-                  <span>{categoryIcons[cat] || '📂'}</span> {cat}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <span>{categoryIcons[cat] || '📂'}</span> {cat}
+                  </div>
+                  {cat !== 'All' && categoryCounts[cat] > 0 && (
+                    <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
+                      {categoryCounts[cat]}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

@@ -172,3 +172,7 @@ html.lenis, html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+select option {
+  background: #020617;
+  color: #f8fafc;
+}

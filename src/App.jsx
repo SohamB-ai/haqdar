@@ -10,19 +10,37 @@ import Dashboard from './components/Dashboard';
 import TransitionPage from './components/TransitionPage';
 import ScrollCheckpoints from './components/ScrollCheckpoints';
 import { useUser, useAuth } from '@clerk/react';
+import ChatBot from './components/ChatBot';
 
 function App() {
   const [view, setView] = useState('landing');
   const { isSignedIn, user, isLoaded } = useUser();
   const { signOut } = useAuth();
   const [prevIsSignedIn, setPrevIsSignedIn] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(() => {
+    const saved = localStorage.getItem('haqdar_user_data');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  useEffect(() => {
+    if (userData) {
+      localStorage.setItem('haqdar_user_data', JSON.stringify(userData));
+    } else {
+      localStorage.removeItem('haqdar_user_data');
+    }
+  }, [userData]);
 
   useEffect(() => {
     // Redirect to input if user just signed in or is on auth pages while signed in
     if (isLoaded) {
-      if (isSignedIn && (view === 'signin' || view === 'signup' || (!prevIsSignedIn && view === 'landing'))) {
-        setView('input');
+      if (isSignedIn) {
+        if (view === 'signin' || view === 'signup' || (!prevIsSignedIn && view === 'landing')) {
+          setView(userData ? 'dashboard' : 'input');
+        }
+      } else {
+        if (view === 'dashboard' || view === 'input' || view === 'transition') {
+          setView('landing');
+        }
       }
       setPrevIsSignedIn(isSignedIn);
     }
@@ -90,7 +108,15 @@ function App() {
       case 'transition':
         return <TransitionPage onHome={() => setView('landing')} onNavigate={handleNavigate} userData={userData} />;
       case 'dashboard':
-        return <Dashboard onHome={() => setView('landing')} userData={userData} />;
+        return <Dashboard 
+          onHome={() => setView('landing')} 
+          userData={userData} 
+          googleUser={user} 
+          onLogout={() => {
+            signOut();
+            setView('landing');
+          }}
+        />;
       default:
         return <div>404 Page Not Found</div>;
     }
@@ -100,6 +126,7 @@ function App() {
     <div style={styles.app}>
       {view !== 'input' && view !== 'transition' && <Navbar onNavigate={handleNavigate} currentView={view} isDashboard={view === 'dashboard'} />}
       {renderView()}
+      <ChatBot />
     </div>
   );
 }

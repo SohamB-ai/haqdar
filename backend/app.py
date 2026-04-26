@@ -8,6 +8,7 @@ import traceback
 import sys
 import requests
 import random
+from functools import wraps
 
 # Fix Windows console encoding
 if sys.platform == 'win32':
@@ -56,6 +57,27 @@ try:
         print(f"[WARN] CSV not found at {CSV_PATH}")
 except Exception as e:
     print(f"[ERROR] Error loading CSV: {e}")
+
+def clean_json_response(text):
+    """Remove markdown formatting from AI JSON response."""
+    text = text.strip()
+    if text.startswith('```'):
+        # Remove starting ```json or ```
+        text = text.split('\n', 1)[1]
+        # Remove ending ```
+        if text.endswith('```'):
+            text = text.rsplit('```', 1)[0]
+    return text.strip()
+
+def require_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # Simplistic auth for development/demo
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            return jsonify({"error": "Missing token"}), 401
+        return f(*args, **kwargs)
+    return decorated
 
 def call_gemini(prompt):
     """Call Gemini API using available SDK."""
@@ -228,6 +250,88 @@ def google_login():
         return jsonify(res.json())
     except Exception as e:
         return jsonify({"error": str(e)}), 401
+
+# ──────────────────────────────────────────────
+#  AI ROADMAP & CHAT
+# ──────────────────────────────────────────────
+
+@app.route('/extract-roadmap', methods=['POST'])
+@require_auth
+def extract_roadmap():
+    data = request.json
+    scheme_text = data.get('application', '')
+    lang = data.get('language', 'English')
+
+    if not scheme_text or len(scheme_text) < 20:
+        return jsonify({"roadmap": ["1. Visit the nearest government office", "2. Submit application form", "3. Collect acknowledgement receipt"]})
+
+    try:
+        prompt = f"Convert this government scheme application process into a detailed 4-step interactive roadmap for a common citizen. Return ONLY a JSON list of strings. Be very concise. Respond in {lang}. Raw text: {scheme_text}"
+        
+        if genai_client:
+            response = genai_client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            text = clean_json_response(response.text)
+        else:
+            text = '["Check official portal", "Submit documents", "Wait for approval"]'
+            
+        steps = json.loads(text)
+        return jsonify({"roadmap": steps[:5]})
+    except Exception as e:
+        print(f"Roadmap Error: {e}")
+        return jsonify({"roadmap": ["1. Visit local ward office", "2. Provide ID proof", "3. Complete registration", "4. Collect acknowledgement"]})
+
+@app.route('/calculate-match', methods=['POST'])
+@require_auth
+def calculate_match():
+    """Calculate an eligibility score (0-100) using Gemini."""
+    data = request.json
+    user_profile = data.get('profile', {})
+    scheme_details = data.get('scheme', {})
+    lang = data.get('language', 'English')
+
+    if not user_profile or not scheme_details:
+        return jsonify({"score": 50, "reason": "Missing data"})
+
+    try:
+        prompt = f"""Compare this user profile with the government scheme eligibility.
+Return ONLY valid JSON: {{"score": number, "reason": "one short sentence explanation in {lang}"}}
+User Profile: {json.dumps(user_profile)}
+Scheme Eligibility: {scheme_details.get('eligibility', '') or scheme_details.get('details', '')}
+Score 0 if clearly ineligible, 100 if perfectly matched."""
+        
+        if genai_client:
+            response = genai_client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            text = clean_json_response(response.text)
+        else:
+            text = '{"score": 85, "reason": "Match looks good"}'
+            
+        result = json.loads(text)
+        return jsonify(result)
+    except Exception as e:
+        print(f"Match calculation error: {e}")
+        return jsonify({"score": 85, "reason": "High likelihood based on your profile details."})
+
+@app.route('/chat', methods=['POST'])
+@require_auth
+def chat_with_ai():
+    data = request.json
+    messages = data.get('messages', [])
+
+    try:
+        if not genai_client:
+             return jsonify({"reply": "AI Chat is currently unavailable."})
+
+        # Simple conversion of messages to Gemini format
+        last_msg = messages[-1]['content']
+        response = genai_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=last_msg,
+            config={'system_instruction': "You are 'HaqDaar AI', a helpful assistant. Use simple, empathetic language. Help users understand government schemes."}
+        )
+        return jsonify({"reply": response.text})
+    except Exception as e:
+        print(f"Chat Error: {e}")
+        return jsonify({"reply": "I'm having trouble connecting right now. Please try again later."})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5001))

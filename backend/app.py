@@ -252,6 +252,54 @@ def google_login():
         return jsonify({"error": str(e)}), 401
 
 # ──────────────────────────────────────────────
+#  SAVED SCHEMES (Bookmarks)
+# ──────────────────────────────────────────────
+# In-memory storage for bookmarks (for demo purposes)
+USER_BOOKMARKS = {}
+
+@app.route('/api/saved-schemes/<clerk_id>', methods=['GET'])
+def get_saved_schemes(clerk_id):
+    scheme_ids = USER_BOOKMARKS.get(clerk_id, [])
+    # Since we are using pandas, filter the dataframe by these IDs
+    saved = []
+    for sid in scheme_ids:
+        # Find scheme by matching scheme_name to sid
+        matches = schemes_df[schemes_df['scheme_name'] == sid]
+        if not matches.empty:
+            scheme_dict = matches.iloc[0].to_dict()
+            scheme_dict['_id'] = sid
+            saved.append(scheme_dict)
+    return jsonify({"saved_schemes": saved})
+
+@app.route('/api/save-scheme', methods=['POST'])
+def save_scheme():
+    data = request.json or {}
+    clerk_id = data.get('clerkId')
+    scheme_id = data.get('schemeId')
+    if not clerk_id or not scheme_id:
+        return jsonify({"error": "Missing clerkId or schemeId"}), 400
+
+    if clerk_id not in USER_BOOKMARKS:
+        USER_BOOKMARKS[clerk_id] = []
+    if scheme_id not in USER_BOOKMARKS[clerk_id]:
+        USER_BOOKMARKS[clerk_id].append(scheme_id)
+        
+    return jsonify({"message": "Scheme bookmarked successfully", "success": True}), 201
+
+@app.route('/api/save-scheme', methods=['DELETE'])
+def remove_scheme():
+    data = request.json or {}
+    clerk_id = data.get('clerkId')
+    scheme_id = data.get('schemeId')
+    if not clerk_id or not scheme_id:
+        return jsonify({"error": "Missing clerkId or schemeId"}), 400
+
+    if clerk_id in USER_BOOKMARKS and scheme_id in USER_BOOKMARKS[clerk_id]:
+        USER_BOOKMARKS[clerk_id].remove(scheme_id)
+        
+    return jsonify({"message": "Scheme removed from bookmarks", "success": True}), 200
+
+# ──────────────────────────────────────────────
 #  AI ROADMAP & CHAT
 # ──────────────────────────────────────────────
 
